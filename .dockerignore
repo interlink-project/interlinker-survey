@@ -1,0 +1,8 @@
+docker-compose.yml
+docker-compose.override.yml
+Dockerfile
+
+# Ignore everything in react folder
+./react/*
+# But not public
+!./react/build

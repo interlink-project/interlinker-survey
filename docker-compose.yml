@@ -1,0 +1,54 @@
+version: "3.3"
+services:
+  survey:
+    image: 'surveyprod:${TAG-latest}'
+    container_name: survey-production
+    env_file:
+      - .env
+    environment:
+      - SERVER_NAME=${DOMAIN?Variable not set}
+      - SERVER_HOST=https://${DOMAIN?Variable not set}
+      - PORT=8921
+      # Allow explicit env var override for tests
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        INSTALL_DEV: ${INSTALL_DEV-false}
+    deploy:
+      labels:
+        - traefik.enable=true
+        - traefik.docker.network=traefik-public
+        - traefik.http.routers.${STACK_NAME?Variable not
+          set}-survey-http.rule=PathPrefix(`/survey`)
+        - traefik.http.routers.${STACK_NAME?Variable not
+          set}-survey-http.middlewares=survey-stripprefix
+        - traefik.http.middlewares.survey-stripprefix.stripprefix.prefixes=/survey
+    networks:
+      - traefik-public
+      - default
+
+  mongodb:
+    image: bitnami/mongodb:latest
+    container_name: survey-mongodb
+    environment:
+      - MONGODB_USERNAME
+      - MONGODB_PASSWORD
+      - MONGODB_DATABASE
+      - MONGODB_ROOT_PASSWORD
+    networks:
+      - default
+    healthcheck:
+      test: echo 'db.runCommand({serverStatus:1}).ok' | mongo admin -u root -p
+        $MONGODB_ROOT_PASSWORD --quiet | grep 1
+      interval: 10s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+
+networks:
+  traefik-public:
+    external: true
