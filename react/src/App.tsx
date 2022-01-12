@@ -1,9 +1,5 @@
-import { Fragment, useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { JsonForms } from '@jsonforms/react';
-import Grid from '@mui/material/Grid';
-import Button from '@mui/material/Button';
-import Typography from '@mui/material/Typography';
-import logo from './logo.svg';
 import './App.css';
 import uischema from './uischema.json';
 import {
@@ -57,27 +53,23 @@ const renderers = [
 
 const App = () => {
   const classes = useStyles();
-  const [data, setData] = useState<any>(initialData);
-  const stringifiedData = useMemo(() => JSON.stringify(data, null, 2), [data]);
+  const [formData, setFormData] = useState<any>(initialData);
+  const stringifiedData = useMemo(() => JSON.stringify(formData, null, 2), [formData]);
 
   const el = $('#my-data').data();
   const schema = el.name
 
   console.log(stringifiedData)
-  // window.location.pathname.replace("/api/v1/surveys/", "").replace('/gui', "")
-  const clearData = () => {
-    setData({});
-  };
 
   return (
     <div className={classes.demoform} id="modal-form">
       <JsonForms
         schema={schema}
         uischema={uischema}
-        data={data}
+        data={formData}
         renderers={renderers}
         cells={materialCells}
-        onChange={({ errors, data }) => setData(data)}
+        onChange={({ errors, data }) => setFormData(data)}
       />
     </div>
   );
