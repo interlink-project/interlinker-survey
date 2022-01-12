@@ -7,8 +7,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@master
-      - uses: actions/setup-node@v1
-        with:
-          node-version: '10.x'
-      - run: npm ci
-      - run: npm run cypress:ci
+      - run: make testing

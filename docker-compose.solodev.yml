@@ -18,3 +18,7 @@ services:
       - "${SOLODEVPORT}:${PORT}"
     networks:
       - default
+
+networks:
+  traefik-public:
+  default:

@@ -41,19 +41,6 @@ window.addEventListener('load', function () {
 
         // set content
         modal.setContent('<iframe src="http://localhost:8921/api/v1/surveys/7328a8ae75244b72838b2cbdd40de7bb/gui" frameborder="0" style="overflow:hidden;overflow-x:hidden;overflow-y:hidden;height:100%;width:100%;position:absolute;top:0px;left:0px;right:0px;bottom:0px" height="100%" width="100%"></iframe>');
-
-        // add a button
-        modal.addFooterBtn('Button label', 'tingle-btn tingle-btn--primary', function () {
-            // here goes some logic
-            modal.close();
-        });
-
-        // add another button
-        modal.addFooterBtn('Dangerous action !', 'tingle-btn tingle-btn--danger', function () {
-            // here goes some logic
-            modal.close();
-        });
-
         // open modal
         modal.open();
     })

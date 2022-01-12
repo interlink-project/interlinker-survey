@@ -3,7 +3,6 @@ import json
 import pytest
 
 from app import crud
-from app.google import delete_file
 
 # https://testdriven.io/blog/fastapi-crud/
 # https://github.com/testdrivenio/fastapi-crud-async/blob/master/src/tests/test_notes.py
@@ -16,37 +15,51 @@ def test_ping(test_app):
 
 
 def test_create_asset(test_app, monkeypatch):
-    test_response_payload = {
-        "_id": "dsasadas",
-        "name": None,
-        "webContentLink": "sdafasdfsadfsadf",
-        "webViewLink": "asdlfksdlflñsadf",
-        "thumbnailLink": None,
-        "version": None,
-        "mimeType": None,
-        "size": None,
-        "iconLink": None,
-        "createdTime": None,
-        "modifiedTime": None,
+    test_payload = {
+        "type": "object",
+        "properties": {
+            "name": {
+                "type": "string",
+                "minLength": 1
+            },
+            "description": {
+                "title": "Long Description",
+                "type": "string"
+            },
+            "done": {
+                "type": "boolean"
+            },
+            "due_date": {
+                "type": "string",
+                "format": "date"
+            },
+            "rating": {
+                "type": "integer",
+                "maximum": 5
+            },
+            "recurrence": {
+                "type": "string",
+                "enum": ["Never", "Daily", "Weekly", "Monthly"]
+            },
+            "recurrence_interval": {
+                "type": "integer"
+            }
+        },
+        "required": ["name", "due_date"]
 
     }
 
+    response_payload = test_payload
+    response_payload["_id"] = "EXAMPLEID"
+
     async def mock_create(payload):
-        # Google file has been created (delete it)
-        google_id = payload["id"]
-        delete_file(google_id)
-        return {
-            "_id": "dsasadas",
-            "webContentLink": "sdafasdfsadfsadf",
-            "webViewLink": "asdlfksdlflñsadf"
-        }
+        return response_payload
 
     monkeypatch.setattr(crud, "create", mock_create)
-    files_data = {'file': ("demoooo.docx", open("./app/tests/demo.docx", "rb"))}
-    response = test_app.post("/api/v1/assets/", files=files_data)
+    response = test_app.post("/api/v1/surveys/", json=test_payload)
 
     assert response.status_code == 201
-    assert response.json() == test_response_payload
+    assert response.json() == response_payload
 
 
 """
