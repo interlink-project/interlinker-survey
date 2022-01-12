@@ -1,6 +1,6 @@
 FROM node:13.12.0-alpine as frontendbuilder
-WORKDIR /react
-COPY ./react /react
+WORKDIR /frontend
+COPY ./frontend /frontend
 RUN npm ci
 RUN npm run build
 
@@ -16,14 +16,14 @@ ENV PYTHONPATH=/app
 
 FROM builder as dev
 WORKDIR /app/
-COPY --from=frontendbuilder /react/build /app/react
+COPY --from=frontendbuilder /frontend/build /app/react
 RUN poetry install --no-root
 RUN chmod +x ./start-dev.sh
 CMD ["bash", "./start-dev.sh"]
 
 FROM builder as prod
 WORKDIR /app/
-COPY --from=frontendbuilder /react/build /app/react
+COPY --from=frontendbuilder /frontend/build /app/react
 RUN poetry install --no-root --no-dev
 RUN chmod +x ./start-prod.sh
 CMD ["bash", "./start-prod.sh"]

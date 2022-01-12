@@ -5,7 +5,7 @@ services:
     container_name: survey-solo
     volumes:
       - ./app:/app
-      - ./react/build:/app/react
+      - ./frontend/build:/app/react
     environment:
       - SERVER_HOST=http://${DOMAIN?Variable not set}
       - BASE_PATH=

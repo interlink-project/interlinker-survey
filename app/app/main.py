@@ -49,39 +49,9 @@ specificrouter = APIRouter()
 defaultrouter = APIRouter()
 
 
+from app.defaults import form_js
 @defaultrouter.post("/surveys/", response_description="Add new survey", response_model=SurveySchema, status_code=201)
-async def create_survey(survey: dict = {
-    "type": "object",
-    "properties": {
-        "name": {
-        "type": "string",
-            "minLength": 1
-        },
-        "description": {
-        "title": "Long Description",
-            "type": "string"
-        },
-        "done": {
-        "type": "boolean"
-        },
-        "due_date": {
-        "type": "string",
-            "format": "date"
-        },
-        "rating": {
-        "type": "integer",
-            "maximum": 5
-        },
-        "recurrence": {
-        "type": "string",
-            "enum": ["Never", "Daily", "Weekly", "Monthly"]
-        },
-        "recurrence_interval": {
-        "type": "integer"
-        }
-    },
-    "required": ["name", "due_date"]
-}):
+async def create_survey(survey: dict = form_js):
     return await crud.create(survey)
 
 
@@ -131,17 +101,24 @@ async def gui_survey(id: str, request: Request):
     survey = await crud.get(id)
     if survey is not None:
         response = templates.TemplateResponse(
-            "index.html", {"request": request, "data": json.dumps(survey)})
+            "index.html", {"request": request, "mode": "view", "schema": json.dumps(survey)})
         return response
 
     raise HTTPException(status_code=404, detail=f"Survey {id} not found")
 
+@mainrouter.get(
+    "/creator", response_description="GUI creator"
+)
+async def gui_creator(request: Request):
+    response = templates.TemplateResponse(
+        "index.html", {"request": request, "mode": "edit"})
+    return response
 
-@defaultrouter.get(
-    "/example", response_description="GUI for example survey"
+@mainrouter.get(
+    "/example/", response_description="GUI for example survey"
 )
 async def example():
-    survey_id = "decec68d7545477bb29566eb6ed1fec3"
+    survey_id = "548843c87b344cedaa0554276888da6b"
     html_content = f"""
     <!DOCTYPE html>
     <html lang="en">
@@ -151,6 +128,7 @@ async def example():
     </head>
 
     <body>
+    Aquí estaría el interlinker y todo su contenido
     <script src="http://localhost:8921/scripts/load.js" id="survey-script" data-surveyid="{survey_id}"></script>
     </body>
 
