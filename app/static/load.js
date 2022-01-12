@@ -1,5 +1,9 @@
 
 window.addEventListener('load', function () {
+
+    var surveyScript = document.getElementById("survey-script");
+    var surveyid = surveyScript.getAttribute('data-surveyid')
+
     var s = document.createElement("script");
     s.type = "text/javascript";
     s.setAttribute("crossorigin", "anonymous");
@@ -40,7 +44,7 @@ window.addEventListener('load', function () {
         });
 
         // set content
-        modal.setContent('<iframe src="http://localhost:8921/api/v1/surveys/7328a8ae75244b72838b2cbdd40de7bb/gui" frameborder="0" style="overflow:hidden;overflow-x:hidden;overflow-y:hidden;height:100%;width:100%;position:absolute;top:0px;left:0px;right:0px;bottom:0px" height="100%" width="100%"></iframe>');
+        modal.setContent(`<iframe src="http://localhost:8921/api/v1/surveys/${surveyid}/gui" frameborder="0" style="overflow:hidden;overflow-x:hidden;overflow-y:hidden;height:100%;width:100%;position:absolute;top:0px;left:0px;right:0px;bottom:0px" height="100%" width="100%"></iframe>`);
         // open modal
         modal.open();
     })

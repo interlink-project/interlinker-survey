@@ -1,35 +1,56 @@
 SHELL := /bin/bash
 
+.PHONY: help
+help: ## Show this help
+	@egrep -h '\s##\s' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
+
+.PHONY: clean
+clean: ## Starts production containers
+	find ./app -type d -name __pycache__ -exec rm -r {} \+
+
 .PHONY: down
 down: ## Stops all containers and removes volumes
-	docker-compose -f docker-compose.yml -f docker-compose.integrated.yml -f docker-compose.solodev.yml down --volumes --remove-orphans
+	docker-compose -f docker-compose.yml -f docker-compose.devintegrated.yml -f docker-compose.devsolo.yml down --volumes --remove-orphans
 
-.devbuild: devbuild
-devbuild: ## Build development containers
-	cd react && npm ci && npm run build
-	docker-compose -f docker-compose.yml -f docker-compose.solodev.yml build
+#######################
+## BUILD IMAGES
+#######################
+
+.PHONY: frontendbuild
+frontendbuild: ## Builds development containers
+	cd react && npm run build
+
+.PHONY: devbuild
+devbuild: ## Builds development containers
+	docker-compose -f docker-compose.yml -f docker-compose.devsolo.yml build
 
 .PHONY: prodbuild
-prodbuild: ## Build production containers
-	cd react && npm ci && npm run build
+prodbuild: ## Builds production containers
 	docker-compose -f docker-compose.yml build
 
-.PHONY: solodev
-solodev: down ## Start solo development containers
-	docker-compose -f docker-compose.yml -f docker-compose.solodev.yml up -d
+#######################
+## RUN CONTAINERS
+#######################
+.PHONY: solo
+solo: down ## Starts solo development containers
+	docker-compose -f docker-compose.yml -f docker-compose.devsolo.yml up -d
 
-.PHONY: up
-up: down ## Start integrated development containers
-	docker-compose -f docker-compose.yml -f docker-compose.integrated.yml up -d
+.PHONY: integrated
+integrated: down ## Starts integrated development containers
+	docker-compose -f docker-compose.yml -f docker-compose.devintegrated.yml up -d
 
 .PHONY: prod
-prod: down ## Start production containers
+prod: down ## Starts production containers
 	docker-compose -f docker-compose.yml up
 
+#######################
+## RUN TESTS
+#######################
+
 .PHONY: tests
-tests: ## Start tests
+tests: ## Starts test container
 	#docker-compose exec survey pytest --cov=app --cov-report=term-missing app/tests
 	docker-compose exec -T survey pytest app/tests
 
 .PHONY: testing
-testing: devbuild solodev tests down ## Start tests
+testing: devbuild solo tests down ## Builds containers, runs them, runs test container and deletes all containers

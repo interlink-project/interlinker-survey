@@ -1,25 +1,29 @@
+FROM node:13.12.0-alpine as frontendbuilder
+WORKDIR /react
+COPY ./react /react
+RUN npm ci
+RUN npm run build
+
 FROM python:3.8 as builder
 WORKDIR /app/
-
 # Install Poetry
 RUN curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | POETRY_HOME=/opt/poetry python && \
     cd /usr/local/bin && \
     ln -s /opt/poetry/bin/poetry && \
     poetry config virtualenvs.create false
-
-# Copy poetry.lock* in case it doesn't exist in the repo
-COPY pyproject.toml poetry.lock* /app/
-
-# Allow installing dev dependencies to run tests
-ARG INSTALL_DEV=false
-RUN bash -c "if [ $INSTALL_DEV == 'true' ] ; then poetry install --no-root ; else poetry install --no-root --no-dev ; fi"
-
-COPY . /app
+COPY ./app /app
 ENV PYTHONPATH=/app
 
-RUN pip install --no-cache-dir Werkzeug python-magic google-api-python-client google-auth-httplib2 google-auth-oauthlib oauth2client
+FROM builder as dev
+WORKDIR /app/
+COPY --from=frontendbuilder /react/build /app/react
+RUN poetry install --no-root
+RUN chmod +x ./start-dev.sh
+CMD ["bash", "./start-dev.sh"]
 
-EXPOSE 80
-
-RUN chmod +x ./start.sh
-CMD ["bash", "./start.sh"]
+FROM builder as prod
+WORKDIR /app/
+COPY --from=frontendbuilder /react/build /app/react
+RUN poetry install --no-root --no-dev
+RUN chmod +x ./start-prod.sh
+CMD ["bash", "./start-prod.sh"]

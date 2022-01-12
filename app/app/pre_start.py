@@ -15,7 +15,7 @@ wait_seconds = 10
     after=after_log(logger, logging.WARN),
 )
 def waitForDatabase() -> None:
-    try:
+    try:    
         from app.database import db
         db["surveys"].find_one({"_id": "TEST"})
     except Exception as e:

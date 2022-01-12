@@ -1,0 +1,43 @@
+version: "3.3"
+services:
+  survey:
+    image: 'surveydev:${TAG-latest}'
+    container_name: survey-solo
+    volumes:
+      - ./app:/app
+      - ./react/build:/app/react
+    environment:
+      - SERVER_HOST=http://${DOMAIN?Variable not set}
+      - BASE_PATH=
+      - PORT
+      - MONGODB_URL=mongodb://user:userpass@mongodb:27017/surveys?retryWrites=true&w=majority
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: dev
+    ports:
+      - "8921:${PORT}"
+    networks:
+      - default
+
+  mongodb:
+    image: bitnami/mongodb:latest
+    container_name: survey-mongodb
+    environment:
+      - MONGODB_USERNAME=user
+      - MONGODB_PASSWORD=userpass
+      - MONGODB_DATABASE=surveys
+      - MONGODB_ROOT_PASSWORD=rootpassword
+      # change also rootpassword on healthcheck and MONGODB_URL environment variable at survey service
+    networks:
+      - default
+    healthcheck:
+      test: echo 'db.runCommand({serverStatus:1}).ok' | mongo admin -u root -p rootpassword --quiet | grep 1
+      interval: 10s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+      
+networks:
+  traefik-public:
+  default:
