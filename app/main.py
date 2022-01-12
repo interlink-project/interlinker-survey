@@ -7,12 +7,14 @@ from fastapi.responses import JSONResponse, RedirectResponse
 from starlette.middleware.cors import CORSMiddleware
 
 import app.crud as crud
+import json
 from app.config import settings
 from app.model import SurveySchema
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 
 templates = Jinja2Templates(directory="react/build")
+templates2 = Jinja2Templates(directory="templates")
 
 BASE_PATH = os.getenv("BASE_PATH", "")
 
@@ -20,6 +22,7 @@ app = FastAPI(
     title="Surveys API Wrapper", openapi_url=f"/openapi.json", docs_url="/docs", root_path=BASE_PATH
 )
 app.mount("/static", StaticFiles(directory="react/build/static"), name="static")
+app.mount("/scripts", StaticFiles(directory="static"), name="scripts")
 
 # Set all CORS enabled origins
 if settings.BACKEND_CORS_ORIGINS:
@@ -133,10 +136,18 @@ async def gui_survey(id: str, request: Request):
     survey = await crud.get(id)
     if survey is not None:
         response = templates.TemplateResponse(
-            "index.html", {"request": request, "survey": survey})
+            "index.html", {"request": request, "data": json.dumps(survey)})
         return response
 
     raise HTTPException(status_code=404, detail=f"Survey {id} not found")
+
+@defaultrouter.get(
+    "/example", response_description="GUI for example survey"
+)
+async def example(request: Request):
+    response = templates2.TemplateResponse(
+            "example.html", {"request": request})
+    return response
 
 app.include_router(mainrouter, tags=["main"])
 app.include_router(defaultrouter, prefix=settings.API_V1_STR, tags=["default"])
