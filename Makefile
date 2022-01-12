@@ -29,7 +29,7 @@ prod: down ## Start production containers
 .PHONY: tests
 tests: ## Start tests
 	#docker-compose exec survey pytest --cov=app --cov-report=term-missing app/tests
-	docker-compose exec survey pytest app/tests
+	docker-compose exec -T survey pytest app/tests
 
 .PHONY: testing
 testing: devbuild solodev tests down ## Start tests
