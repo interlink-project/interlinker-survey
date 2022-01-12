@@ -1,3 +1,4 @@
+from app.defaults import form_js
 import json
 import os
 from typing import List
@@ -18,9 +19,11 @@ app = FastAPI(
     title="Surveys API Wrapper", openapi_url=f"/openapi.json", docs_url="/docs", root_path=BASE_PATH
 )
 
-templates = Jinja2Templates(directory="react")
-app.mount("/static", StaticFiles(directory="react/static"), name="static")
-app.mount("/scripts", StaticFiles(directory="static"), name="scripts")
+#templates = Jinja2Templates(directory="react")
+#app.mount("/static", StaticFiles(directory="react/static"), name="static")
+#app.mount("/scripts", StaticFiles(directory="static"), name="scripts")
+app.mount("/static", StaticFiles(directory="static"), name="static")
+templates = Jinja2Templates(directory="templates")
 
 # Set all CORS enabled origins
 if settings.BACKEND_CORS_ORIGINS:
@@ -49,7 +52,6 @@ specificrouter = APIRouter()
 defaultrouter = APIRouter()
 
 
-from app.defaults import form_js
 @defaultrouter.post("/surveys/", response_description="Add new survey", response_model=SurveySchema, status_code=201)
 async def create_survey(survey: dict = form_js):
     return await crud.create(survey)
@@ -94,25 +96,35 @@ async def delete_survey(id: str):
     raise HTTPException(status_code=404, detail="Survey {id} not found")
 
 
+# GUI
+
 @defaultrouter.get(
     "/surveys/{id}/gui", response_description="GUI for specific survey"
 )
 async def gui_survey(id: str, request: Request):
     survey = await crud.get(id)
     if survey is not None:
-        response = templates.TemplateResponse(
-            "index.html", {"request": request, "mode": "view", "schema": json.dumps(survey)})
+        response = templates.TemplateResponse("base.html", {"request": request, "script": "/static/react/form.js", "data": json.dumps(survey)})
         return response
 
     raise HTTPException(status_code=404, detail=f"Survey {id} not found")
 
-@mainrouter.get(
-    "/creator", response_description="GUI creator"
+
+@defaultrouter.get(
+    "/surveys/instantiator/", response_description="Survey creator"
+)
+async def creator(request: Request):
+    return templates.TemplateResponse("base.html", {"request": request, "script": "/static/react/editor.js"})
+
+
+@defaultrouter.get(
+    "/surveys/list/", response_description="Survey list"
 )
 async def gui_creator(request: Request):
-    response = templates.TemplateResponse(
-        "index.html", {"request": request, "mode": "edit"})
+    surveys = await crud.get_all()
+    response = templates.TemplateResponse("base.html", {"request": request, "script": "/static/react/list.js", "data": json.dumps(surveys)})
     return response
+
 
 @mainrouter.get(
     "/example/", response_description="GUI for example survey"
@@ -129,12 +141,14 @@ async def example():
 
     <body>
     Aquí estaría el interlinker y todo su contenido
-    <script src="http://localhost:8921/scripts/load.js" id="survey-script" data-surveyid="{survey_id}"></script>
+    <script src="http://localhost:8921/static/load.js" id="survey-script" data-surveyid="{survey_id}"></script>
     </body>
 
     </html>
     """
     return HTMLResponse(content=html_content, status_code=200)
+
+
 
 app.include_router(mainrouter, tags=["main"])
 app.include_router(defaultrouter, prefix=settings.API_V1_STR, tags=["default"])
