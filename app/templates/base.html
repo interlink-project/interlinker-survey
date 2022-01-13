@@ -1,21 +1,23 @@
-<html lang="en">
+<!-- https://github.com/formio/formio.js-->
+<html>
 
 <head>
-    <meta charset="utf-8">
-    <link rel="stylesheet" href="https://unpkg.com/@bpmn-io/form-js@0.2.3/dist/assets/form-js.css">
-    <link rel="stylesheet" href="https://unpkg.com/@bpmn-io/form-js@0.2.3/dist/assets/form-js-editor.css">
-    <link rel="stylesheet" href="https://unpkg.com/@bpmn-io/form-js@0.2.3/dist/assets/dragula.css">
-    <link rel="stylesheet" href="/static/style.css">
-    {% block head %}
-    {% endblock %}
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link href="https://bootswatch.com/4/cosmo/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.form.io/formiojs/formio.full.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"
+        integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <script src='https://cdn.form.io/formiojs/formio.full.min.js'></script>
+
 </head>
 
 <body>
     <meta id="my-data" data-data="{{data}}">
-    <script src="{{script}}"></script>
-    <div id="app"> </div>
+    <div id='element' style="padding: 20px; height: 100%"></div>
+
     {% block body %}
     {% endblock %}
+
 </body>
 
 </html>

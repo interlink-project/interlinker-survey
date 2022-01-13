@@ -1,15 +1,3 @@
-FROM node:13.12.0-alpine as frontendbuilder
-WORKDIR /frontend
-
-# COPY ./frontend /frontend
-# RUN npm ci
-# RUN npm run build
-
-COPY ./frontend2 /frontend
-RUN npm ci
-RUN npm install --global gulp-cli
-RUN gulp
-
 FROM python:3.8 as builder
 WORKDIR /app/
 # Install Poetry
@@ -22,8 +10,6 @@ ENV PYTHONPATH=/app
 
 FROM builder as dev
 WORKDIR /app/
-# COPY --from=frontendbuilder /frontend/build /app/react
-COPY --from=frontendbuilder /frontend/build /app/static/react
 
 RUN poetry install --no-root
 RUN chmod +x ./start-dev.sh

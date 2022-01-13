@@ -114,7 +114,7 @@ async def gui_survey(id: str, request: Request):
     "/surveys/instantiator/", response_description="Survey creator"
 )
 async def creator(request: Request):
-    return templates.TemplateResponse("base.html", {"request": request, "script": "/static/react/editor.js"})
+    return templates.TemplateResponse("editor.html", {"request": request, "script": "/static/react/editor.js"})
 
 
 @defaultrouter.get(

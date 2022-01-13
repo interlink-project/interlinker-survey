@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block body %}
+<script type='text/javascript'>
+  let { data, mode } = $('#my-data').data();
+  window.onload = function () {
+    Formio.builder(document.getElementById('element'), {}, {
+      builder: {
+        premium: false
+      }
+    }).then((builder) => {
+
+      // Here is the form builder instance.
+      console.log(builder);
+      builder.on('saveComponent', function () {
+        console.log(builder.schema);
+      });
+    });
+  };
+</script>
+{% endblock %}

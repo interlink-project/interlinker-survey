@@ -18,7 +18,7 @@ down: ## Stops all containers and removes volumes
 
 .PHONY: frontendbuild
 frontendbuild: ## Builds development containers
-	cd react && npm run build
+	cd frontend2 && gulp
 
 .PHONY: devbuild
 devbuild: ## Builds development containers
