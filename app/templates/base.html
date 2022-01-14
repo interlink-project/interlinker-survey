@@ -2,22 +2,26 @@
 <html>
 
 <head>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
-    <link href="https://bootswatch.com/4/cosmo/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.form.io/formiojs/formio.full.min.css">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"
-        integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
-    <script src='https://cdn.form.io/formiojs/formio.full.min.js'></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
 
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    
+    <link href="https://bootswatch.com/4/cosmo/bootstrap.min.css" rel="stylesheet">
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.bundle.min.js"></script>
+
+    <link rel="stylesheet" href="https://cdn.form.io/formiojs/formio.full.min.css">
+    <script src='https://cdn.form.io/formiojs/formio.full.min.js'></script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tingle/0.8.4/tingle.min.js" integrity="sha512-SxopZNPB/jzFpgtGdR6lI7dK8EbbheOZVLNDI0FsMNM0NAqNkJyVoT83C72esOJCTdPVfDb8miZ3whsW4o/+fA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tingle/0.8.4/tingle.min.css" integrity="sha512-j5NOES5oZiza0awDPWoDCbU50obvmJUQobyAqYzhsXFxaXaxkcxB2WhnRcZa5wRGNyborruWuJaeg9J508HfQg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    {% block head %}
+    {% endblock %}
 </head>
 
 <body>
     <meta id="my-data" data-data="{{data}}">
-    <div id='element' style="padding: 20px; height: 100%"></div>
-
     {% block body %}
     {% endblock %}
-
 </body>
 
 </html>
