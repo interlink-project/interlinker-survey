@@ -52,20 +52,20 @@ specificrouter = APIRouter()
 defaultrouter = APIRouter()
 
 
-@defaultrouter.post("/surveys/", response_description="Add new survey", response_model=SurveySchema, status_code=201)
+@defaultrouter.post("/assets/", response_description="Add new survey", response_model=SurveySchema, status_code=201)
 async def create_survey(survey: dict = form_js):
     return await crud.create(survey)
 
 
 @defaultrouter.get(
-    "/surveys/", response_description="List all surveys", response_model=List[SurveySchema]
+    "/assets/", response_description="List all surveys", response_model=List[SurveySchema]
 )
 async def list_surveys():
     return await crud.get_all()
 
 
 @defaultrouter.get(
-    "/surveys/{id}", response_description="Get a single survey", response_model=SurveySchema
+    "/assets/{id}", response_description="Get a single survey", response_model=SurveySchema
 )
 async def show_survey(id: str):
     survey = await crud.get(id)
@@ -76,7 +76,7 @@ async def show_survey(id: str):
 
 
 @defaultrouter.post(
-    "/surveys/{id}/clone", response_description="Clone specific survey", response_model=SurveySchema, status_code=201
+    "/assets/{id}/clone", response_description="Clone specific survey", response_model=SurveySchema, status_code=201
 )
 async def clone_survey(id: str):
     survey = crud.get(id)
@@ -86,7 +86,7 @@ async def clone_survey(id: str):
     raise HTTPException(status_code=404, detail="Survey {id} not found")
 
 
-@defaultrouter.delete("/surveys/{id}", response_description="Delete an survey")
+@defaultrouter.delete("/assets/{id}", response_description="Delete an survey")
 async def delete_survey(id: str):
     if crud.get(id) is not None:
         delete_result = await crud.delete(id)
@@ -99,7 +99,7 @@ async def delete_survey(id: str):
 # GUI
 
 @defaultrouter.get(
-    "/surveys/{id}/gui", response_description="GUI for specific survey"
+    "/assets/{id}/gui", response_description="GUI for specific survey"
 )
 async def gui_survey(id: str, request: Request):
     survey = await crud.get(id)
@@ -111,14 +111,14 @@ async def gui_survey(id: str, request: Request):
 
 
 @defaultrouter.get(
-    "/surveys/instantiator/", response_description="Survey creator"
+    "/assets/instantiator/", response_description="Survey creator"
 )
 async def creator(request: Request):
     return templates.TemplateResponse("editor.html", {"request": request, "script": "/static/react/editor.js"})
 
 
 @defaultrouter.get(
-    "/surveys/list/", response_description="Survey list"
+    "/assets/list/", response_description="Survey list"
 )
 async def gui_creator(request: Request):
     surveys = await crud.get_all()

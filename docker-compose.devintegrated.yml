@@ -6,11 +6,14 @@ services:
     container_name: survey-integrated
     volumes:
       - ./app:/app
+    env_file:
+      - .env
     environment:
-      - SERVER_HOST=http://${DOMAIN?Variable not set}
-      - BASE_PATH=/survey
+      - SERVER_NAME=${DOMAIN?Variable not set}
+      - SERVER_HOST=http://${DOMAIN?Variable not set}/survey
       - PORT
-      - MONGODB_URL=mongodevurl
+      - BASE_PATH=/survey
+      - MONGODB_URL=mongodb://user:userpass@mongodb:27017/data?retryWrites=true&w=majority
     build:
       context: .
       dockerfile: Dockerfile
@@ -22,3 +25,9 @@ services:
       - traefik.http.services.${STACK_NAME?Variable not set}-survey.loadbalancer.server.port=${PORT}
       - traefik.http.routers.${STACK_NAME?Variable not set}-survey-http.middlewares=survey-stripprefix
       - traefik.http.middlewares.survey-stripprefix.stripprefix.prefixes=/survey
+    networks:
+      - traefik-public
+
+networks:
+  traefik-public:
+    external: true

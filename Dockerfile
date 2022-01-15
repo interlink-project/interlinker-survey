@@ -9,15 +9,11 @@ COPY ./app /app
 ENV PYTHONPATH=/app
 
 FROM builder as dev
-WORKDIR /app/
-
 RUN poetry install --no-root
 RUN chmod +x ./start-dev.sh
 CMD ["bash", "./start-dev.sh"]
 
 FROM builder as prod
-WORKDIR /app/
-COPY --from=frontendbuilder /frontend/build /app/react
 RUN poetry install --no-root --no-dev
 RUN chmod +x ./start-prod.sh
 CMD ["bash", "./start-prod.sh"]
