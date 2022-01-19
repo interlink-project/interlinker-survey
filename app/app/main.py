@@ -1,4 +1,4 @@
-from app.defaults import form_js
+from app.defaults import formio
 import json
 import os
 from typing import List
@@ -53,7 +53,7 @@ defaultrouter = APIRouter()
 
 
 @defaultrouter.post("/assets/", response_description="Add new survey", response_model=SurveySchema, status_code=201)
-async def create_survey(survey: dict = form_js):
+async def create_survey(survey: dict = formio):
     return await crud.create(survey)
 
 
@@ -76,7 +76,7 @@ async def show_survey(id: str):
 
 
 @defaultrouter.post(
-    "/assets/{id}/clone", response_description="Clone specific survey", response_model=SurveySchema, status_code=201
+    "/assets/{id}/clone/", response_description="Clone specific survey", response_model=SurveySchema, status_code=201
 )
 async def clone_survey(id: str):
     survey = crud.get(id)
@@ -99,12 +99,23 @@ async def delete_survey(id: str):
 # GUI
 
 @defaultrouter.get(
-    "/assets/{id}/gui", response_description="GUI for specific survey"
+    "/assets/{id}/gui/", response_description="GUI for specific survey"
 )
 async def gui_survey(id: str, request: Request):
     survey = await crud.get(id)
     if survey is not None:
-        response = templates.TemplateResponse("base.html", {"request": request, "script": "/static/react/form.js", "data": json.dumps(survey)})
+        response = templates.TemplateResponse("viewer.html", {"request": request, "BASE_PATH": BASE_PATH, "data": json.dumps(survey)})
+        return response
+
+    raise HTTPException(status_code=404, detail=f"Survey {id} not found")
+
+@defaultrouter.get(
+    "/assets/{id}/modify/", response_description="GUI for modifying survey"
+)
+async def gui_survey(id: str, request: Request):
+    survey = await crud.get(id)
+    if survey is not None:
+        response = templates.TemplateResponse("instantiator.html", {"request": request, "BASE_PATH": BASE_PATH, "data": json.dumps(survey)})
         return response
 
     raise HTTPException(status_code=404, detail=f"Survey {id} not found")
@@ -114,16 +125,7 @@ async def gui_survey(id: str, request: Request):
     "/assets/instantiator/", response_description="Survey creator"
 )
 async def creator(request: Request):
-    return templates.TemplateResponse("editor.html", {"request": request, "script": "/static/react/editor.js", "BASE_PATH": BASE_PATH})
-
-
-@defaultrouter.get(
-    "/assets/list/", response_description="Survey list"
-)
-async def gui_creator(request: Request):
-    surveys = await crud.get_all()
-    response = templates.TemplateResponse("base.html", {"request": request, "script": "/static/react/list.js", "data": json.dumps(surveys)})
-    return response
+    return templates.TemplateResponse("instantiator.html", {"request": request, "BASE_PATH": BASE_PATH})
 
 
 @mainrouter.get(
