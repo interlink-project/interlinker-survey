@@ -85,16 +85,6 @@ async def update_asset(id: str, asset_in: SurveyCreateUpdateSchema):
     raise HTTPException(status_code=404, detail="Asset {id} not found")
 
 
-@defaultrouter.delete("/assets/{id}", response_description="Delete an survey")
-async def delete_survey(id: str):
-    if crud.get(id) is not None:
-        delete_result = await crud.delete(id)
-        if delete_result.deleted_count == 1:
-            return JSONResponse(status_code=status.HTTP_204_NO_CONTENT)
-
-    raise HTTPException(status_code=404, detail="Survey {id} not found")
-
-
 integrablerouter = APIRouter()
 
 @integrablerouter.get(
@@ -127,7 +117,14 @@ async def clone_survey(id: str):
     raise HTTPException(status_code=404, detail="Survey {id} not found")
 
 
+@integrablerouter.delete("/assets/{id}", response_description="Delete an survey")
+async def delete_survey(id: str):
+    if crud.get(id) is not None:
+        delete_result = await crud.delete(id)
+        if delete_result.deleted_count == 1:
+            return JSONResponse(status_code=status.HTTP_204_NO_CONTENT)
 
+    raise HTTPException(status_code=404, detail="Survey {id} not found")
 
 
 customrouter = APIRouter()
