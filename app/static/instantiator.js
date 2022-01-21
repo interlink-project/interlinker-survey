@@ -149,7 +149,7 @@ function App() {
 
   const submit = () => {
     const data = {
-      schema: formBuilder.schema,
+      formSchema: formBuilder.schema,
       translations: {
         language: defaultLanguage,
         i18n: translations,

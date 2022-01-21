@@ -7,4 +7,4 @@ class SurveySchema(BaseModel, extra=Extra.allow):
 class SurveyCreateUpdateSchema(BaseModel):
     name: str
     translations: dict
-    formSchema: dict = Field(..., alias='schema')
+    formSchema: dict

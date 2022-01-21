@@ -3,7 +3,7 @@ import json
 import os
 from typing import List
 
-from fastapi import APIRouter, FastAPI, HTTPException, Request, status
+from fastapi import APIRouter, FastAPI, HTTPException, Request, status, Depends
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -12,16 +12,16 @@ from starlette.middleware.cors import CORSMiddleware
 import app.crud as crud
 from app.config import settings
 from app.model import SurveySchema, SurveyCreateUpdateSchema
+from app.database import connect_to_mongo, close_mongo_connection, AsyncIOMotorCollection, get_collection
 
 BASE_PATH = os.getenv("BASE_PATH", "")
 
 app = FastAPI(
     title="Surveys API Wrapper", openapi_url=f"/openapi.json", docs_url="/docs", root_path=BASE_PATH
 )
+app.add_event_handler("startup", connect_to_mongo)
+app.add_event_handler("shutdown", close_mongo_connection)
 
-#templates = Jinja2Templates(directory="react")
-#app.mount("/static", StaticFiles(directory="react/static"), name="static")
-#app.mount("/scripts", StaticFiles(directory="static"), name="scripts")
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
@@ -51,22 +51,22 @@ defaultrouter = APIRouter()
 
 
 @defaultrouter.post("/assets/", response_description="Add new survey", response_model=SurveySchema, status_code=201)
-async def create_survey(survey: SurveyCreateUpdateSchema = formio):
-    return await crud.create(survey)
+async def create_survey(survey: SurveyCreateUpdateSchema = formio, collection: AsyncIOMotorCollection = Depends(get_collection)):
+    return await crud.create(collection, survey)
 
 
 @defaultrouter.get(
     "/assets/", response_description="List all surveys", response_model=List[SurveySchema]
 )
-async def list_surveys():
-    return await crud.get_all()
+async def list_surveys(collection: AsyncIOMotorCollection = Depends(get_collection)):
+    return await crud.get_all(collection)
 
 
 @defaultrouter.get(
     "/assets/{id}", response_description="Get a single survey", response_model=SurveySchema
 )
-async def show_survey(id: str):
-    survey = await crud.get(id)
+async def show_survey(id: str, collection: AsyncIOMotorCollection = Depends(get_collection)):
+    survey = await crud.get(collection, id)
     if survey is not None:
         return survey
 
@@ -77,10 +77,10 @@ async def show_survey(id: str):
 @defaultrouter.put(
     "/assets/{id}", response_description="Update survey"
 )
-async def update_asset(id: str, asset_in: SurveyCreateUpdateSchema):
-    asset = await crud.get(id)
+async def update_asset(id: str, asset_in: SurveyCreateUpdateSchema, collection: AsyncIOMotorCollection = Depends(get_collection)):
+    asset = await crud.get(collection, id)
     if asset:
-        return await crud.update(id, asset_in.dict())
+        return await crud.update(collection, id, asset_in.dict())
 
     raise HTTPException(status_code=404, detail="Asset {id} not found")
 
@@ -90,8 +90,8 @@ integrablerouter = APIRouter()
 @integrablerouter.get(
     "/assets/{id}/gui/", response_description="GUI for specific survey"
 )
-async def gui_survey(id: str, request: Request):
-    survey = await crud.get(id)
+async def gui_survey(id: str, request: Request, collection: AsyncIOMotorCollection = Depends(get_collection)):
+    survey = await crud.get(collection, id)
     if survey is not None:
         response = templates.TemplateResponse("instantiator.html", {"request": request, "BASE_PATH": BASE_PATH, "data": json.dumps(survey)})
         return response
@@ -109,18 +109,18 @@ async def creator(request: Request):
 @integrablerouter.post(
     "/assets/{id}/clone/", response_description="Clone specific survey", response_model=SurveySchema, status_code=201
 )
-async def clone_survey(id: str):
-    survey = crud.get(id)
+async def clone_survey(id: str, collection: AsyncIOMotorCollection = Depends(get_collection)):
+    survey = crud.get(collection, id)
     if survey is not None:
-        return await crud.create(survey)
+        return await crud.create(collection, survey)
 
     raise HTTPException(status_code=404, detail="Survey {id} not found")
 
 
 @integrablerouter.delete("/assets/{id}", response_description="Delete an survey")
-async def delete_survey(id: str):
-    if crud.get(id) is not None:
-        delete_result = await crud.delete(id)
+async def delete_survey(id: str, collection: AsyncIOMotorCollection = Depends(get_collection)):
+    if crud.get(collection, id) is not None:
+        delete_result = await crud.delete(collection, id)
         if delete_result.deleted_count == 1:
             return JSONResponse(status_code=status.HTTP_204_NO_CONTENT)
 
@@ -132,8 +132,8 @@ customrouter = APIRouter()
 @customrouter.get(
     "/assets/{id}/answer/", response_description="GUI for modifying survey"
 )
-async def gui_survey(id: str, request: Request):
-    survey = await crud.get(id)
+async def gui_survey(id: str, request: Request, collection: AsyncIOMotorCollection = Depends(get_collection)):
+    survey = await crud.get(collection, id)
     if survey is not None:
         response = templates.TemplateResponse("viewer.html", {"request": request, "BASE_PATH": BASE_PATH, "data": json.dumps(survey)})
         return response
