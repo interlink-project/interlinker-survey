@@ -3,7 +3,7 @@ import json
 import pytest
 
 from app import crud
-
+from app.defaults import formio
 # https://testdriven.io/blog/fastapi-crud/
 # https://github.com/testdrivenio/fastapi-crud-async/blob/master/src/tests/test_notes.py
 
@@ -13,44 +13,18 @@ def test_ping(test_app):
     assert response.status_code == 200
     assert response.json() == True
 
+def test_instantiator(test_app):
+    response = test_app.get("/instantiator/")
+    assert response.status_code == 200
+    assert response.json() == True
 
+"""
 def test_create_asset(test_app, monkeypatch):
-    test_payload = {
-        "type": "object",
-        "properties": {
-            "name": {
-                "type": "string",
-                "minLength": 1
-            },
-            "description": {
-                "title": "Long Description",
-                "type": "string"
-            },
-            "done": {
-                "type": "boolean"
-            },
-            "due_date": {
-                "type": "string",
-                "format": "date"
-            },
-            "rating": {
-                "type": "integer",
-                "maximum": 5
-            },
-            "recurrence": {
-                "type": "string",
-                "enum": ["Never", "Daily", "Weekly", "Monthly"]
-            },
-            "recurrence_interval": {
-                "type": "integer"
-            }
-        },
-        "required": ["name", "due_date"]
-
-    }
+    test_payload = formio
 
     response_payload = test_payload
     response_payload["_id"] = "EXAMPLEID"
+    response_payload["name"] = "EXAMPLENAME"
 
     async def mock_create(payload):
         return response_payload
@@ -62,7 +36,7 @@ def test_create_asset(test_app, monkeypatch):
     assert response.json() == response_payload
 
 
-"""
+
 def test_create_asset_invalid_json(test_app):
     response = test_app.post("/api/v1/assets/", data=json.dumps({"title": "something"}))
     assert response.status_code == 422
