@@ -14,9 +14,8 @@ def test_ping(test_app):
     assert response.json() == True
 
 def test_instantiator(test_app):
-    response = test_app.get("/instantiator/")
+    response = test_app.get("/assets/instantiator/")
     assert response.status_code == 200
-    assert response.json() == True
 
 """
 def test_create_asset(test_app, monkeypatch):
