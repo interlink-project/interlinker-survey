@@ -11,7 +11,7 @@ from starlette.middleware.cors import CORSMiddleware
 
 import app.crud as crud
 from app.config import settings
-from app.model import SurveySchema
+from app.model import SurveySchema, SurveyCreateUpdateSchema
 
 BASE_PATH = os.getenv("BASE_PATH", "")
 
@@ -47,13 +47,11 @@ def healthcheck():
     return True
 
 
-specificrouter = APIRouter()
-
 defaultrouter = APIRouter()
 
 
 @defaultrouter.post("/assets/", response_description="Add new survey", response_model=SurveySchema, status_code=201)
-async def create_survey(survey: dict = formio):
+async def create_survey(survey: SurveyCreateUpdateSchema = formio):
     return await crud.create(survey)
 
 
@@ -75,15 +73,16 @@ async def show_survey(id: str):
     raise HTTPException(status_code=404, detail="Survey {id} not found")
 
 
-@defaultrouter.post(
-    "/assets/{id}/clone/", response_description="Clone specific survey", response_model=SurveySchema, status_code=201
+# SPECIFIC
+@defaultrouter.put(
+    "/assets/{id}", response_description="Update survey"
 )
-async def clone_survey(id: str):
-    survey = crud.get(id)
-    if survey is not None:
-        return await crud.create(survey)
+async def update_asset(id: str, asset_in: SurveyCreateUpdateSchema):
+    asset = await crud.get(id)
+    if asset:
+        return await crud.update(id, asset_in.dict())
 
-    raise HTTPException(status_code=404, detail="Survey {id} not found")
+    raise HTTPException(status_code=404, detail="Asset {id} not found")
 
 
 @defaultrouter.delete("/assets/{id}", response_description="Delete an survey")
@@ -96,21 +95,10 @@ async def delete_survey(id: str):
     raise HTTPException(status_code=404, detail="Survey {id} not found")
 
 
-# GUI
+integrablerouter = APIRouter()
 
-@defaultrouter.get(
+@integrablerouter.get(
     "/assets/{id}/gui/", response_description="GUI for specific survey"
-)
-async def gui_survey(id: str, request: Request):
-    survey = await crud.get(id)
-    if survey is not None:
-        response = templates.TemplateResponse("viewer.html", {"request": request, "BASE_PATH": BASE_PATH, "data": json.dumps(survey)})
-        return response
-
-    raise HTTPException(status_code=404, detail=f"Survey {id} not found")
-
-@defaultrouter.get(
-    "/assets/{id}/modify/", response_description="GUI for modifying survey"
 )
 async def gui_survey(id: str, request: Request):
     survey = await crud.get(id)
@@ -120,15 +108,42 @@ async def gui_survey(id: str, request: Request):
 
     raise HTTPException(status_code=404, detail=f"Survey {id} not found")
 
-
-@defaultrouter.get(
+@integrablerouter.get(
     "/assets/instantiator/", response_description="Survey creator"
 )
+
 async def creator(request: Request):
     return templates.TemplateResponse("instantiator.html", {"request": request, "BASE_PATH": BASE_PATH})
 
 
-@mainrouter.get(
+@integrablerouter.post(
+    "/assets/{id}/clone/", response_description="Clone specific survey", response_model=SurveySchema, status_code=201
+)
+async def clone_survey(id: str):
+    survey = crud.get(id)
+    if survey is not None:
+        return await crud.create(survey)
+
+    raise HTTPException(status_code=404, detail="Survey {id} not found")
+
+
+
+
+
+customrouter = APIRouter()
+
+@customrouter.get(
+    "/assets/{id}/answer/", response_description="GUI for modifying survey"
+)
+async def gui_survey(id: str, request: Request):
+    survey = await crud.get(id)
+    if survey is not None:
+        response = templates.TemplateResponse("viewer.html", {"request": request, "BASE_PATH": BASE_PATH, "data": json.dumps(survey)})
+        return response
+
+    raise HTTPException(status_code=404, detail=f"Survey {id} not found")
+
+@customrouter.get(
     "/example/", response_description="GUI for example survey"
 )
 async def example():
@@ -153,5 +168,6 @@ async def example():
 
 
 app.include_router(mainrouter, tags=["main"])
-app.include_router(defaultrouter, prefix=settings.API_V1_STR, tags=["default"])
-app.include_router(specificrouter, prefix=settings.API_V1_STR, tags=["specific"])
+app.include_router(integrablerouter, tags=["Integrable"])
+app.include_router(customrouter, tags=["Custom endpoints"])
+app.include_router(defaultrouter, prefix=settings.API_V1_STR, tags=["Default operations"])

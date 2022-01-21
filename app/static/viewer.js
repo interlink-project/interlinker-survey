@@ -10,7 +10,8 @@ function App() {
   return (
     <Container maxWidth={false}>
       <FormioForm
-        schema={datafrombackend.schema}
+        name={datafrombackend.name}
+        schema={datafrombackend.formSchema}
         translations={datafrombackend.translations}
       />
     </Container>

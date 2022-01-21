@@ -2,10 +2,11 @@ const {
     ButtonGroup,
     Button,
     Select,
-    MenuItem
+    MenuItem,
+    Typography
 } = MaterialUI;
 
-function FormioForm({ schema, translations }) {
+function FormioForm({ schema, translations, name }) {
     const [language, setLanguage] = React.useState(translations.language)
 
     const newTranslations = jQuery.extend({}, translations)
@@ -28,16 +29,25 @@ function FormioForm({ schema, translations }) {
 
     return (
         <div>
+            <Typography variant="h4" gutterBottom component="div" sx={{ textAlign: "center", mb: 2 }}>
+                {name}
+            </Typography>
             {codes.length > 1 && (
-                <Select
-                    value={language}
-                    label="Language"
-                    onChange={handleChange}
-                    fullWidth
-                >
-                    {codes.map(code => <MenuItem key={`preview-language-${code}-button`} value={code}>{getNameOfLanguageByCode(code)}</MenuItem>
-                    )}
-                </Select>)}
+                <React.Fragment>
+                    <Typography variant="subtitle1" >
+                        Language:
+                    </Typography>
+                    <Select
+                        value={language}
+                        label="Language"
+                        onChange={handleChange}
+                        fullWidth
+                    >
+                        {codes.map(code => <MenuItem key={`preview-language-${code}-button`} value={code}>{getNameOfLanguageByCode(code)}</MenuItem>
+                        )}
+                    </Select>
+                </React.Fragment>
+            )}
             <div id="form">
             </div>
         </div>

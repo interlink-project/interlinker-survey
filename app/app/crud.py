@@ -19,5 +19,9 @@ async def create(survey: dict):
     db_survey = await collection.insert_one(survey)
     return await get(db_survey.inserted_id)
 
+async def update(id: str, data):
+    await collection.update_one( { "_id": id }, { "$set": data })
+    return await get(id)
+    
 async def delete(id: str):
     return await collection.delete_one({"_id": id})

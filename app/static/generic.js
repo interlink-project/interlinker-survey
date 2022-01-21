@@ -18,6 +18,11 @@ class Service {
             onUploadProgress,
         });
     }
+    update(id, data, onUploadProgress) {
+        return http.put(`${basepath}/api/v1/assets/${id}`, data, {
+            onUploadProgress,
+        });
+    }
 }
 
 var service = new Service();

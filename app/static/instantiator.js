@@ -15,13 +15,16 @@ const {
   DialogContent,
   Step,
   Stepper,
-  StepLabel
+  StepLabel,
+  Snackbar
 } = MaterialUI;
 
 
 function App() {
   const [formBuilder, setFormBuilder] = React.useState(null)
   const [jsonEditor, setJsonEditor] = React.useState(null)
+  const [editMode, setEditMode] = React.useState(false)
+  const [response, setResponse] = React.useState(null)
 
   const [formName, setFormName] = React.useState("");
 
@@ -39,6 +42,7 @@ function App() {
   }
 
   const onMultiselectChange = (val) => {
+    console.log("multiselect change")
     const createKeysForEveryComp = () => {
       const obj = {}
       formBuilder.schema.components.forEach(comp => {
@@ -65,10 +69,11 @@ function App() {
     var schema = {}
     if (datafrombackend) {
       console.log("DATA FROM BACKEND")
-      schema = datafrombackend.schema
+      schema = datafrombackend.formSchema
       setDefaultLanguage(datafrombackend.translations.language)
       setTranslations(datafrombackend.translations.i18n)
       setFormName(datafrombackend.name)
+      setEditMode(true)
     }
 
     Formio.builder(document.getElementById('form-builder'), schema, {
@@ -79,15 +84,20 @@ function App() {
 
       builder.on('saveComponent', function (info, visualComp, schema, key, index) {
         var component = schema.components[index]
+
         console.log("added", schema.components[index])
+        console.log(translations)
+
         const newTranslations = jQuery.extend({}, translations)
+        console.log(newTranslations)
         getLanguageCodes().forEach(code => {
           // si no hay otro componente con el mismo label se pone a empty
           if (builder.schema.components.filter(x => x.label === component.label).length < 2) {
             newTranslations[code][component.label] = "empty"
+            setTranslations(newTranslations)
           }
         })
-        setTranslations(newTranslations)
+
       });
 
       builder.on('removeComponent', function (component, schema, path, index) {
@@ -97,9 +107,10 @@ function App() {
           // si no hay otro componente con el mismo label se elimina el key
           if (!builder.schema.components.filter(x => x.label === component.label).length < 2) {
             delete newTranslations[code][component.label]
+            setTranslations(newTranslations)
           }
         })
-        setTranslations(newTranslations)
+
       });
 
       builder.on('updateComponent', function (component) {
@@ -109,9 +120,10 @@ function App() {
           console.log(component, builder.schema.components)
           if (!builder.schema.components.filter(x => x.label === component.label).length < 2) {
             delete newTranslations[code][component.label]
+            setTranslations(newTranslations)
           }
         })
-        setTranslations(newTranslations)
+
       });
       setFormBuilder(builder)
 
@@ -144,10 +156,25 @@ function App() {
       },
       name: formName
     }
-    service.create(data).then(res => console.log(res.data))
+    if (editMode) {
+      service.update(datafrombackend._id, data).then(res => {
+        console.log(res.data)
+        setSnackbarOpen("Updated successfully")
+      })
+
+    } else {
+      service.create(data).then(res => {
+        console.log(res.data)
+        setSnackbarOpen("Created successfully")
+        setResponse(res.data)
+        window.location.replace(`${basepath}/assets/${res.data._id}/gui/`)
+      })
+
+    }
   }
 
   const [open, setOpen] = React.useState(false);
+  const [snackbarOpen, setSnackbarOpen] = React.useState(false);
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -165,7 +192,7 @@ function App() {
           </Step>
         ))}
       </Stepper> */}
-      
+
       <div className="row">
         <div className="col-6">
           <div id='form-builder'></div>
@@ -191,10 +218,11 @@ function App() {
         <div className="col-3" style={{ display: "block" }}>
           <InputLabel>Name</InputLabel>
 
-          <TextField error={formName === ""} helperText={formName === "" && "Required"} variant="outlined" fullWidth onChange={(e) => setFormName(e.target.value)} />
+          <TextField error={formName === ""} helperText={formName === "" && "Required"} variant="outlined" value={formName} fullWidth onChange={(e) => setFormName(e.target.value)} />
 
           <Button variant="contained" fullWidth sx={{ mt: 2 }} color="success" onClick={handleClickOpen}>Preview</Button>
           <Button variant="contained" fullWidth sx={{ mt: 1 }} onClick={() => submit()}>Save</Button>
+          {editMode && <Button variant="contained" fullWidth sx={{ mt: 1 }} color="secondary" onClick={() => window.open(`${basepath}/assets/${datafrombackend._id}/answer/`, "_blank")}>Share</Button>}
         </div>
       </div>
       {formBuilder && <Dialog
@@ -206,15 +234,25 @@ function App() {
         maxWidth="md"
       >
         <DialogContent sx={{ p: 3 }}>
-          <FormioForm
-            schema={formBuilder.schema}
-            translations={{
-              language: defaultLanguage,
-              i18n: translations,
-            }}
-          />
+          <Box>
+            <FormioForm
+              name={formName}
+              schema={formBuilder.schema}
+              translations={{
+                language: defaultLanguage,
+                i18n: translations,
+              }}
+            />
+            {editMode && `${window.origin}${basepath}/assets/${datafrombackend._id}/answer/`}
+          </Box>
         </DialogContent>
       </Dialog>}
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={3000}
+        onClose={() => setSnackbarOpen(null)}
+        message={snackbarOpen}
+      />
 
     </Container>
   );
