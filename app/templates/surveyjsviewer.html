@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>NPS survey with follow-up questions, jQuery Survey Library Example</title><meta name="viewport" content="width=device-width"/>
+        <script src="https://unpkg.com/jquery"></script>
+        <script src="https://unpkg.com/survey-jquery@1.9.6/survey.jquery.min.js"></script>
+        <link href="https://unpkg.com/survey-core@1.9.6/modern.min.css" type="text/css" rel="stylesheet"/>
+        <link rel="stylesheet" href="./index.css"></head>
+        <meta id="data" data-basepath="{{BASE_PATH}}" data-dataFromBackend="{{data}}">
+    <body>
+        <div id="surveyElement" style="display:inline-block;width:100%;"></div>
+        <script type="text/javascript">
+            var { basepath, datafrombackend } = $('#data').data();
+
+            Survey
+                .StylesManager
+                .applyTheme("modern");
+    
+            var surveyValueChanged = function (sender, options) {
+                var el = document.getElementById(options.name);
+                if (el) {
+                    el.value = options.value;
+                }
+            };
+    
+            window.survey = new Survey.Model(datafrombackend);
+    
+            survey
+                .onComplete
+                .add(function (sender) {
+                    console.log(sender.data)
+                });
+    
+            survey.data = {
+                name: 'John Doe',
+                email: 'johndoe@nobody.com',
+                car: ['Ford']
+            };
+    
+            $("#surveyElement").Survey({model: survey});
+        </script>
+    </body>
+</html>
