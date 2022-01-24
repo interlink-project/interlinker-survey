@@ -93,7 +93,7 @@ integrablerouter = APIRouter()
 async def gui_survey(id: str, request: Request, collection: AsyncIOMotorCollection = Depends(get_collection)):
     survey = await crud.get(collection, id)
     if survey is not None:
-        response = templates.TemplateResponse("surveyjsinstantiator.html", {"request": request, "BASE_PATH": BASE_PATH, "data": json.dumps(survey)})
+        response = templates.TemplateResponse("surveybuilder.html", {"request": request, "BASE_PATH": BASE_PATH, "data": json.dumps(survey)})
         return response
 
     raise HTTPException(status_code=404, detail=f"Survey {id} not found")
@@ -103,7 +103,7 @@ async def gui_survey(id: str, request: Request, collection: AsyncIOMotorCollecti
 )
 
 async def creator(request: Request):
-    return templates.TemplateResponse("surveyjsinstantiator.html", {"request": request, "BASE_PATH": BASE_PATH})
+    return templates.TemplateResponse("instantiator.html", {"request": request, "BASE_PATH": BASE_PATH})
 
 
 @integrablerouter.post(
@@ -135,7 +135,7 @@ customrouter = APIRouter()
 async def gui_survey(id: str, request: Request, collection: AsyncIOMotorCollection = Depends(get_collection)):
     survey = await crud.get(collection, id)
     if survey is not None:
-        response = templates.TemplateResponse("surveyjsviewer.html", {"request": request, "BASE_PATH": BASE_PATH, "data": json.dumps(survey)})
+        response = templates.TemplateResponse("surveyviewer.html", {"request": request, "BASE_PATH": BASE_PATH, "data": json.dumps(survey)})
         return response
 
     raise HTTPException(status_code=404, detail=f"Survey {id} not found")

@@ -101,3 +101,22 @@ var theme = createTheme({
         '0 0 1px 0 rgba(0,0,0,0.31), 0 24px 36px -8px rgba(0,0,0,0.25)'
     ]
 });
+
+
+var languagesJson = []
+$.ajax({
+    type: 'GET',
+    url: `${basepath}/static/languages.json`,
+    dataType: 'json',
+    success: function (json) {
+        languagesJson = json
+    },
+    data: {},
+    async: false
+});
+
+function getNameOfLanguageByCode(code) {
+    const language = languagesJson.find(x => x.code === code)
+    return language ? `${language.name} (${language.code})` : "Unknown"
+}
+

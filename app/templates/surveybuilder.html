@@ -43,6 +43,7 @@
         var creator = new SurveyCreator.SurveyCreator(options);
         creator.haveCommercialLicense = true
         creator.render("creatorElement");
+        
 
         if (datafrombackend) {
             creator.JSON = datafrombackend
@@ -53,16 +54,32 @@
                 // Update
                 http.put(`${basepath}/api/v1/assets/${datafrombackend._id}`, creator.text).then(res => {
                     console.log(res.data)
+                    if (window.parent) {
+                        window.parent.postMessage({
+                        'code': 'asset_created',
+                        'data': res.data
+                        }, "*");
+                    }
                     callback(saveNo, true);
                 }).catch(err => callback(saveNo, false));
             } else {
                 http.post(`${basepath}/api/v1/assets/`, creator.text).then(res => {
                     console.log(res.data)
+                    if (window.parent) {
+                        window.parent.postMessage({
+                        'code': 'asset_created',
+                        'data': res.data
+                        }, "*");
+                    }
                     callback(saveNo, true);
                 }).catch(err => callback(saveNo, false));
             }
+        }
 
-
+        if (window.parent) {
+            window.parent.postMessage({
+                'code': 'initialized',
+            }, "*");
         }
     </script>
 </body>
