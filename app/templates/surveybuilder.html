@@ -50,13 +50,14 @@
         }
 
         creator.saveSurveyFunc = function (saveNo, callback) {
+            console.log(creator.text)
             if (datafrombackend) {
                 // Update
                 http.put(`${basepath}/api/v1/assets/${datafrombackend._id}`, creator.text).then(res => {
                     console.log(res.data)
                     if (window.parent) {
                         window.parent.postMessage({
-                        'code': 'asset_created',
+                        'code': 'asset_updated',
                         'data': res.data
                         }, "*");
                     }
