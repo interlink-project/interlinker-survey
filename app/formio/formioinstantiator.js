@@ -167,7 +167,7 @@ function App() {
         console.log(res.data)
         setSnackbarOpen("Created successfully")
         setResponse(res.data)
-        window.location.replace(`${basepath}/assets/${res.data._id}/gui/`)
+        window.location.replace(`${basepath}/assets/${res.data._id}/viewer/`)
       })
 
     }

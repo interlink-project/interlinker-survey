@@ -88,17 +88,6 @@ async def update_asset(id: str, asset_in: SurveyCreateUpdateSchema, collection: 
 integrablerouter = APIRouter()
 
 @integrablerouter.get(
-    "/assets/{id}/gui/", response_description="GUI for specific survey"
-)
-async def gui_survey(id: str, request: Request, collection: AsyncIOMotorCollection = Depends(get_collection)):
-    survey = await crud.get(collection, id)
-    if survey is not None:
-        response = templates.TemplateResponse("surveybuilder.html", {"request": request, "BASE_PATH": BASE_PATH, "data": json.dumps(survey)})
-        return response
-
-    raise HTTPException(status_code=404, detail=f"Survey {id} not found")
-
-@integrablerouter.get(
     "/assets/instantiator/", response_description="Survey creator"
 )
 
@@ -126,11 +115,8 @@ async def delete_survey(id: str, collection: AsyncIOMotorCollection = Depends(ge
 
     raise HTTPException(status_code=404, detail="Survey {id} not found")
 
-
-customrouter = APIRouter()
-
-@customrouter.get(
-    "/assets/{id}/answer/", response_description="GUI for modifying survey"
+@integrablerouter.get(
+    "/assets/{id}/viewer/", response_description="GUI for viewing survey"
 )
 async def gui_survey(id: str, request: Request, collection: AsyncIOMotorCollection = Depends(get_collection)):
     survey = await crud.get(collection, id)
@@ -139,6 +125,21 @@ async def gui_survey(id: str, request: Request, collection: AsyncIOMotorCollecti
         return response
 
     raise HTTPException(status_code=404, detail=f"Survey {id} not found")
+
+
+@integrablerouter.get(
+    "/assets/{id}/editor/", response_description="GUI for editing specific survey"
+)
+async def gui_survey(id: str, request: Request, collection: AsyncIOMotorCollection = Depends(get_collection)):
+    survey = await crud.get(collection, id)
+    if survey is not None:
+        response = templates.TemplateResponse("surveybuilder.html", {"request": request, "BASE_PATH": BASE_PATH, "data": json.dumps(survey)})
+        return response
+
+    raise HTTPException(status_code=404, detail=f"Survey {id} not found")
+
+customrouter = APIRouter()
+
 
 @customrouter.get(
     "/example/", response_description="GUI for example survey"
