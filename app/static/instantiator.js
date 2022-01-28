@@ -26,11 +26,11 @@ function App() {
         }
     }, [])
     const submit = () => {
-        if(!title){
+        if (!title) {
             setError("title")
             return
         }
-        if(!description){
+        if (!description) {
             setError("description")
             return
         }
@@ -49,8 +49,6 @@ function App() {
     }
     return (
         <Container maxWidth={false}>
-
-
             {created ?
                 (<Box
                     sx={{
@@ -97,7 +95,7 @@ function App() {
                         <Button
                             color='primary'
                             variant='contained'
-                            href={`${basepath}/assets/${created._id}/viewer/`}
+                            href={`${basepath}/assets/${created._id}/view`}
                         >
                             Open asset
                         </Button>
