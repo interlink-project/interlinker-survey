@@ -6,17 +6,41 @@ from app import crud
 from app.defaults import formio
 # https://testdriven.io/blog/fastapi-crud/
 # https://github.com/testdrivenio/fastapi-crud-async/blob/master/src/tests/test_notes.py
+from app import database
 
+async def get_collection_mock(payload):
+    print("HACE ESTO")
+    return True
 
 def test_ping(test_app):
-    response = test_app.get("/healthcheck/")
+    response = test_app.get("/healthcheck")
     assert response.status_code == 200
     assert response.json() == True
 
-def test_instantiator(test_app):
-    response = test_app.get("/assets/instantiator/")
+
+def test_endpoints(test_app, monkeypatch):
+    response = test_app.get(f"/assets/instantiate")
     assert response.status_code == 200
 
+    id = "bb6bae15bbb9497c90e8a91cddc35654"
+    send_payload = {
+        "description": "sdfsdf",
+        "title": "sdfsd"
+    }
+    response_payload = send_payload
+    response_payload["_id"] = id
+
+    async def mock(payload):
+        return response_payload
+
+    monkeypatch.setattr(database, "get_collection", get_collection_mock)
+
+    monkeypatch.setattr(crud, "create", mock)
+    monkeypatch.setattr(crud, "get", mock)
+
+    response = test_app.post("/api/v1/assets", json=send_payload)
+    print(response.json())
+    assert response.status_code == 201
 """
 def test_create_asset(test_app, monkeypatch):
     test_payload = formio
