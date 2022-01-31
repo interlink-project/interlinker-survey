@@ -25,6 +25,24 @@ function App() {
             }, "*");
         }
     }, [])
+
+    const sendMessage = (data) => {
+
+        if (inIframe) {
+          const dataToSend = {}
+          dataToSend["id"] = data._id
+          dataToSend["name"] = data.title
+          dataToSend["icon"] = "https://www.freeiconspng.com/thumbs/survey-icon/survey-icon-12.png"
+    
+          window.parent.postMessage({
+            'code': 'asset_created',
+            'data': dataToSend
+          }, "*");
+        } else {
+          setCreated(dataToSend)
+        }
+      }
+
     const submit = () => {
         if (!title) {
             setError("title")
@@ -36,15 +54,7 @@ function App() {
         }
         service.create({ title, description }).then(response => {
             console.log("RESPONSE CONFIRM", response.data);
-            if (inIframe) {
-                window.parent.postMessage({
-                    'code': 'asset_created',
-                    'data': response.data
-                }, "*");
-            }
-            else {
-                setCreated(response.data)
-            }
+            sendMessage(response.data)
         })
     }
     return (

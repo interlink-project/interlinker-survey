@@ -40,7 +40,7 @@ window.addEventListener('load', function () {
             });
 
             // set content
-            modal.setContent(`<iframe style="height: 70vh;"src=${basepath}/assets/${surveyid}/answer/" frameborder="0" style="overflow:hidden;overflow-x:hidden;overflow-y:hidden;height:100%;width:100%;position:absolute;top:0px;left:0px;right:0px;bottom:0px" height="100%" width="100%"></iframe>`);
+            modal.setContent(`<iframe style="height: 70vh;"src=${basepath}/assets/${surveyid}/view" frameborder="0" style="overflow:hidden;overflow-x:hidden;overflow-y:hidden;height:100%;width:100%;position:absolute;top:0px;left:0px;right:0px;bottom:0px" height="100%" width="100%"></iframe>`);
             // open modal
             modal.open();
         })
