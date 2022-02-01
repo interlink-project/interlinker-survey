@@ -27,21 +27,21 @@ function App() {
     }, [])
 
     const sendMessage = (data) => {
-
+        const dataToSend = {}
         if (inIframe) {
-          const dataToSend = {}
-          dataToSend["id"] = data._id
-          dataToSend["name"] = data.title
-          dataToSend["icon"] = "https://www.freeiconspng.com/thumbs/survey-icon/survey-icon-12.png"
-    
-          window.parent.postMessage({
-            'code': 'asset_created',
-            'data': dataToSend
-          }, "*");
+            dataToSend["id"] = data._id
+            dataToSend["name"] = data.title
+            dataToSend["icon"] = "https://www.freeiconspng.com/thumbs/survey-icon/survey-icon-12.png"
+
+            window.parent.postMessage({
+                'code': 'asset_created',
+                'data': dataToSend
+            }, "*");
         } else {
-          setCreated(dataToSend)
+            dataToSend["id"] = data._id
+            setCreated(dataToSend)
         }
-      }
+    }
 
     const submit = () => {
         if (!title) {
@@ -58,7 +58,7 @@ function App() {
         })
     }
     return (
-        <Container maxWidth={false}>
+        <Container maxWidth="md">
             {created ?
                 (<Box
                     sx={{
@@ -105,7 +105,7 @@ function App() {
                         <Button
                             color='primary'
                             variant='contained'
-                            href={`${basepath}/assets/${created._id}/view`}
+                            href={`${basepath}/assets/${created.id}/view`}
                         >
                             Open asset
                         </Button>
@@ -116,7 +116,7 @@ function App() {
                         <InputLabel>Title</InputLabel>
 
                         <TextField error={error === "title"} helperText={title === "" && "Required"} variant="outlined" value={title} fullWidth onChange={(e) => setTitle(e.target.value)} />
-                        <InputLabel>Description</InputLabel>
+                        <InputLabel sx={{mt: 2}}>Description</InputLabel>
                         <TextField error={error === "description"} helperText={description === "" && "Required"} variant="outlined" value={description} fullWidth onChange={(e) => setDescription(e.target.value)} />
                         <Button fullWidth variant="contained" sx={{ mt: 2 }} onClick={() => submit()}>Create</Button>
                     </React.Fragment>
