@@ -93,7 +93,7 @@ async def asset_viewer(id: str, request: Request, collection: AsyncIOMotorCollec
     survey = await crud.get(collection, id)
     if survey is not None:
         response = templates.TemplateResponse("surveyviewer.html", {
-                                              "request": request, "BASE_PATH": BASE_PATH, "data": json.dumps(survey), "title": survey["title"]})
+                                              "request": request, "BASE_PATH": BASE_PATH, "data": json.dumps(survey, indent=4, sort_keys=True, default=str), "title": survey["title"]})
         return response
 
     raise HTTPException(status_code=404, detail=f"Asset {id} not found")
@@ -106,7 +106,7 @@ async def asset_editor(id: str, request: Request, collection: AsyncIOMotorCollec
     survey = await crud.get(collection, id)
     if survey is not None:
         response = templates.TemplateResponse("surveybuilder.html", {
-                                              "request": request, "BASE_PATH": BASE_PATH, "data": json.dumps(survey)})
+                                              "request": request, "BASE_PATH": BASE_PATH, "data": json.dumps(survey, indent=4, sort_keys=True, default=str)})
         return response
 
     raise HTTPException(status_code=404, detail=f"Asset {id} not found")
