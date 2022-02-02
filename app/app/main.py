@@ -17,7 +17,7 @@ from app.database import (
     get_collection,
 )
 from app.defaults import formio
-from app.model import SurveyCreateUpdateSchema, SurveySchema
+from app.model import AssetCreateUpdateSchema, AssetSchema, AssetBasicDataSchema
 
 BASE_PATH = os.getenv("BASE_PATH", "")
 
@@ -55,8 +55,8 @@ def healthcheck():
 integrablerouter = APIRouter()
 
 
-@integrablerouter.post("/assets", response_description="Asset JSON", response_model=SurveySchema, status_code=201)
-async def create_asset(survey: SurveyCreateUpdateSchema, collection: AsyncIOMotorCollection = Depends(get_collection)):
+@integrablerouter.post("/assets", response_description="Asset JSON", response_model=AssetSchema, status_code=201)
+async def create_asset(survey: AssetCreateUpdateSchema, collection: AsyncIOMotorCollection = Depends(get_collection)):
     return await crud.create(collection, survey)
 
 
@@ -66,16 +66,14 @@ async def create_asset(survey: SurveyCreateUpdateSchema, collection: AsyncIOMoto
 async def instantiate_asset(request: Request):
     return templates.TemplateResponse("instantiator.html", {"request": request, "BASE_PATH": BASE_PATH})
 
-
 @integrablerouter.get(
-    "/assets/{id}", response_description="Asset json", response_model=SurveySchema
+    "/assets/{id}", response_description="Asset JSON", response_model=AssetBasicDataSchema
 )
 async def asset_data(id: str, collection: AsyncIOMotorCollection = Depends(get_collection)):
-    survey = await crud.get(collection, id)
-    if survey is not None:
-        return survey
+    if (asset := await crud.get(collection, id)) is not None:
+        return asset
 
-    raise HTTPException(status_code=404, detail=f"Asset with id {id} not found")
+    raise HTTPException(status_code=404, detail=f"Asset {id} not found")
 
 
 @integrablerouter.delete("/assets/{id}", response_description="No content")
@@ -91,45 +89,44 @@ async def delete_asset(id: str, collection: AsyncIOMotorCollection = Depends(get
 @integrablerouter.get(
     "/assets/{id}/view", response_description="GUI for viewing survey"
 )
-async def view_asset_viewer(id: str, request: Request, collection: AsyncIOMotorCollection = Depends(get_collection)):
+async def asset_viewer(id: str, request: Request, collection: AsyncIOMotorCollection = Depends(get_collection)):
     survey = await crud.get(collection, id)
     if survey is not None:
         response = templates.TemplateResponse("surveyviewer.html", {
                                               "request": request, "BASE_PATH": BASE_PATH, "data": json.dumps(survey), "title": survey["title"]})
         return response
 
-    raise HTTPException(status_code=404, detail=f"Survey {id} not found")
+    raise HTTPException(status_code=404, detail=f"Asset {id} not found")
 
 
 @integrablerouter.get(
     "/assets/{id}/edit", response_description="GUI for editing specific survey"
 )
-async def view_asset_editor(id: str, request: Request, collection: AsyncIOMotorCollection = Depends(get_collection)):
+async def asset_editor(id: str, request: Request, collection: AsyncIOMotorCollection = Depends(get_collection)):
     survey = await crud.get(collection, id)
     if survey is not None:
         response = templates.TemplateResponse("surveybuilder.html", {
                                               "request": request, "BASE_PATH": BASE_PATH, "data": json.dumps(survey)})
         return response
 
-    raise HTTPException(status_code=404, detail=f"Survey {id} not found")
+    raise HTTPException(status_code=404, detail=f"Asset {id} not found")
 
 
 @integrablerouter.post(
-    "/assets/{id}/clone", response_description="Asset JSON", response_model=SurveySchema, status_code=201
+    "/assets/{id}/clone", response_description="Asset JSON", response_model=AssetSchema, status_code=201
 )
 async def clone_asset(id: str, collection: AsyncIOMotorCollection = Depends(get_collection)):
-    survey = crud.get(collection, id)
-    if survey is not None:
-        return await crud.create(collection, survey)
+    if (survey := await crud.get(collection, id)) is not None:
+        return await crud.create(collection, AssetCreateUpdateSchema(**survey))
 
-    raise HTTPException(status_code=404, detail="Survey {id} not found")
+    raise HTTPException(status_code=404, detail="Asset {id} not found")
 
 
 customrouter = APIRouter()
 
 
 @customrouter.get(
-    "/assets", response_description="List of survey JSON", response_model=List[SurveySchema]
+    "/assets", response_description="List of survey JSON", response_model=List[AssetSchema]
 )
 async def list_assets(collection: AsyncIOMotorCollection = Depends(get_collection)):
     return await crud.get_all(collection)
@@ -138,7 +135,7 @@ async def list_assets(collection: AsyncIOMotorCollection = Depends(get_collectio
 @customrouter.put(
     "/assets/{id}", response_description="Asset JSON"
 )
-async def update_asset(id: str, asset_in: SurveyCreateUpdateSchema, collection: AsyncIOMotorCollection = Depends(get_collection)):
+async def update_asset(id: str, asset_in: AssetCreateUpdateSchema, collection: AsyncIOMotorCollection = Depends(get_collection)):
     asset = await crud.get(collection, id)
     if asset:
         return await crud.update(collection, id, asset_in.dict())

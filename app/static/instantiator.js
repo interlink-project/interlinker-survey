@@ -26,22 +26,20 @@ function App() {
         }
     }, [])
 
-    const sendMessage = (data) => {
-        const dataToSend = {}
-        if (inIframe) {
-            dataToSend["id"] = data._id
-            dataToSend["name"] = data.title
-            dataToSend["icon"] = "https://www.freeiconspng.com/thumbs/survey-icon/survey-icon-12.png"
-
-            window.parent.postMessage({
-                'code': 'asset_created',
-                'data': dataToSend
-            }, "*");
-        } else {
-            dataToSend["id"] = data._id
-            setCreated(dataToSend)
+    const sendMessage = (code, data) => {
+        const dataToSend = {
+          id: data._id
         }
-    }
+        if (inIframe) {
+          window.parent.postMessage({
+            'code': code,
+            'data': dataToSend
+          }, "*");
+        } else {
+          setCreated(dataToSend)
+        }
+      }
+    
 
     const submit = () => {
         if (!title) {
@@ -54,7 +52,7 @@ function App() {
         }
         service.create({ title, description }).then(response => {
             console.log("RESPONSE CONFIRM", response.data);
-            sendMessage(response.data)
+            sendMessage("asset_created", response.data)
         })
     }
     return (
@@ -116,7 +114,7 @@ function App() {
                         <InputLabel>Title</InputLabel>
 
                         <TextField error={error === "title"} helperText={title === "" && "Required"} variant="outlined" value={title} fullWidth onChange={(e) => setTitle(e.target.value)} />
-                        <InputLabel sx={{mt: 2}}>Description</InputLabel>
+                        <InputLabel sx={{ mt: 2 }}>Description</InputLabel>
                         <TextField error={error === "description"} helperText={description === "" && "Required"} variant="outlined" value={description} fullWidth onChange={(e) => setDescription(e.target.value)} />
                         <Button fullWidth variant="contained" sx={{ mt: 2 }} onClick={() => submit()}>Create</Button>
                     </React.Fragment>
