@@ -18,6 +18,8 @@ class AssetSchema(BaseModel):
 
 class AssetBasicDataSchema(BaseModel):
     id: str = Field(alias='_id')
+    title: str = Field(alias='name')
+    interlinker_name: str = "Survey"
     icon: str = "https://cdn.pixabay.com/photo/2017/05/15/23/48/survey-2316468_1280.png"
     createdTime: datetime.datetime = Field(alias='created_at')
     modifiedTime: Optional[datetime.datetime] = Field(alias='updated_at')
