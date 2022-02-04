@@ -19,10 +19,15 @@ from app.database import (
 from app.defaults import formio
 from app.model import AssetCreateUpdateSchema, AssetSchema, AssetBasicDataSchema
 
-BASE_PATH = os.getenv("BASE_PATH", "")
-
+domainfo = {
+        "PROTOCOL": settings.PROTOCOL,
+        "SERVER_NAME": settings.SERVER_NAME ,
+        "BASE_PATH": settings.BASE_PATH ,
+        "COMPLETE_SERVER_NAME": settings.COMPLETE_SERVER_NAME 
+    }
+    
 app = FastAPI(
-    title="Survey interlinker API", openapi_url=f"/openapi.json", docs_url="/docs", root_path=BASE_PATH
+    title="Survey interlinker API", openapi_url=f"/openapi.json", docs_url="/docs", root_path=settings.BASE_PATH
 )
 app.add_event_handler("startup", connect_to_mongo)
 app.add_event_handler("shutdown", close_mongo_connection)
@@ -44,7 +49,7 @@ mainrouter = APIRouter()
 
 @mainrouter.get("/")
 def main():
-    return RedirectResponse(url=f"{BASE_PATH}/docs")
+    return RedirectResponse(url=f"{settings.BASE_PATH}/docs")
 
 
 @mainrouter.get("/healthcheck")
@@ -64,7 +69,7 @@ async def create_asset(survey: AssetCreateUpdateSchema, collection: AsyncIOMotor
     "/assets/instantiate", response_description="GUI for asset creation"
 )
 async def instantiate_asset(request: Request):
-    return templates.TemplateResponse("instantiator.html", {"request": request, "BASE_PATH": BASE_PATH})
+    return templates.TemplateResponse("instantiator.html", {"request": request, "BASE_PATH": settings.BASE_PATH, "DOMAIN_INFO": json.dumps(domainfo)})
 
 @integrablerouter.get(
     "/assets/{id}", response_description="Asset JSON", response_model=AssetBasicDataSchema
@@ -93,7 +98,7 @@ async def asset_viewer(id: str, request: Request, collection: AsyncIOMotorCollec
     survey = await crud.get(collection, id)
     if survey is not None:
         response = templates.TemplateResponse("surveyviewer.html", {
-                                              "request": request, "BASE_PATH": BASE_PATH, "data": json.dumps(survey, indent=4, sort_keys=True, default=str), "title": survey["title"]})
+                                              "request": request, "BASE_PATH": settings.BASE_PATH, "DOMAIN_INFO": json.dumps(domainfo), "DATA": json.dumps(survey, indent=4, sort_keys=True, default=str), "title": survey["title"]})
         return response
 
     raise HTTPException(status_code=404, detail=f"Asset {id} not found")
@@ -106,7 +111,7 @@ async def asset_editor(id: str, request: Request, collection: AsyncIOMotorCollec
     survey = await crud.get(collection, id)
     if survey is not None:
         response = templates.TemplateResponse("surveybuilder.html", {
-                                              "request": request, "BASE_PATH": BASE_PATH, "data": json.dumps(survey, indent=4, sort_keys=True, default=str)})
+                                              "request": request,  "BASE_PATH": settings.BASE_PATH, "DOMAIN_INFO": json.dumps(domainfo), "DATA": json.dumps(survey, indent=4, sort_keys=True, default=str)})
         return response
 
     raise HTTPException(status_code=404, detail=f"Asset {id} not found")

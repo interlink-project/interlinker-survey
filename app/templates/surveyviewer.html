@@ -5,12 +5,14 @@
         <script src="https://unpkg.com/jquery"></script>
         <script src="https://unpkg.com/survey-jquery@1.9.6/survey.jquery.min.js"></script>
         <link href="https://unpkg.com/survey-core@1.9.6/modern.min.css" type="text/css" rel="stylesheet"/>
-        <meta id="data" data-basepath="{{BASE_PATH}}" data-dataFromBackend="{{data}}">
-    <body>
+        <meta id="data" data-domain="{{DOMAIN_INFO}}" data-basepath="{{BASE_PATH}}" data-dataFromBackend="{{DATA}}">
+        <body>
         <div id="surveyElement" style="display:inline-block;width:100%;"></div>
         <script type="text/javascript">
-            var { basepath, datafrombackend } = $('#data').data();
-
+            var { domain, basepath, datafrombackend } = jQuery('#data').data();
+            const origin = domain.PROTOCOL + domain.SERVER_NAME
+            console.log(origin, datafrombackend, basepath)
+            
             Survey
                 .StylesManager
                 .applyTheme("modern");

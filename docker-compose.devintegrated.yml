@@ -9,8 +9,8 @@ services:
     env_file:
       - .env
     environment:
+      - PROTOCOL=http://
       - SERVER_NAME=${DOMAIN?Variable not set}
-      - SERVER_HOST=http://${DOMAIN?Variable not set}/survey
       - PORT
       - BASE_PATH=/survey
       - MONGODB_URL=mongodb://user:userpass@mongodb:27017/data?retryWrites=true&w=majority

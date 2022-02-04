@@ -18,7 +18,7 @@
     <script src="https://unpkg.com/survey-creator-knockout@1.9.6-beta.1/survey-creator-knockout.min.js"></script>
     <link href="https://unpkg.com/survey-creator-knockout@1.9.6-beta.1/survey-creator-knockout.min.css" type="text/css"
         rel="stylesheet" />
-    <meta id="data" data-basepath="{{BASE_PATH}}" data-dataFromBackend="{{data}}">
+    <meta id="data" data-domain="{{DOMAIN_INFO}}" data-basepath="{{BASE_PATH}}" data-dataFromBackend="{{DATA}}">
 </head>
 
 <body>
@@ -26,7 +26,10 @@
         <div id="creatorElement" style="height: 100vh;"></div>
     </div>
     <script type="text/javascript">
-        var { basepath, datafrombackend } = $('#data').data();
+        var { domain, basepath, datafrombackend } = jQuery('#data').data();
+        const origin = domain.PROTOCOL + domain.SERVER_NAME
+        console.log(origin, datafrombackend, basepath)
+
         var http = axios.create({
             headers: {
                 "Content-type": "application/json",
@@ -43,7 +46,7 @@
         var creator = new SurveyCreator.SurveyCreator(options);
         creator.haveCommercialLicense = true
         creator.render("creatorElement");
-        
+
 
         if (datafrombackend) {
             creator.JSON = datafrombackend
@@ -57,8 +60,8 @@
                     console.log(res.data)
                     if (window.parent) {
                         window.parent.postMessage({
-                        'code': 'asset_updated',
-                        'data': res.data
+                            'code': 'asset_updated',
+                            'data': res.data
                         }, "*");
                     }
                     callback(saveNo, true);
@@ -68,8 +71,8 @@
                     console.log(res.data)
                     if (window.parent) {
                         window.parent.postMessage({
-                        'code': 'asset_created',
-                        'data': res.data
+                            'code': 'asset_created',
+                            'data': res.data
                         }, "*");
                     }
                     callback(saveNo, true);
