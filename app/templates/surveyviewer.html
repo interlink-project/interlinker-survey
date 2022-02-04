@@ -3,6 +3,7 @@
     <head>
         <title>{{title}}</title><meta name="viewport" content="width=device-width"/>
         <script src="https://unpkg.com/jquery"></script>
+        <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
         <script src="https://unpkg.com/survey-jquery@1.9.6/survey.jquery.min.js"></script>
         <link href="https://unpkg.com/survey-core@1.9.6/modern.min.css" type="text/css" rel="stylesheet"/>
         <meta id="data" data-domain="{{DOMAIN_INFO}}" data-basepath="{{BASE_PATH}}" data-dataFromBackend="{{DATA}}">
@@ -12,19 +13,29 @@
             var { domain, basepath, datafrombackend } = jQuery('#data').data();
             const origin = domain.PROTOCOL + domain.SERVER_NAME
             console.log(origin, datafrombackend, basepath)
-            
+
             Survey
                 .StylesManager
                 .applyTheme("modern");
     
             window.survey = new Survey.Model(datafrombackend);
-    
+            
+            var http = axios.create({
+            headers: {
+                "Content-type": "application/json",
+                baseURL: basepath,
+            }
+        });
+
             survey
                 .onComplete
                 .add(function (sender) {
                     console.log(sender.data)
+                    http.post(`${basepath}/api/v1/assets/${datafrombackend._id}/answers`, sender.data).then(res => {
+                    console.log(res.data)
                 });
-    
+                });
+                
             $("#surveyElement").Survey({model: survey});
         </script>
     </body>
