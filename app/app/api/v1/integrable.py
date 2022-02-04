@@ -8,6 +8,7 @@ from app.crud import assets as crud
 from app.database import AsyncIOMotorCollection, get_collection
 from app.models.surveys import AssetBasicDataSchema, AssetCreateUpdateSchema, AssetSchema
 from app.api.v1.common import templates, domainfo
+from app.authentication import get_current_active_user
 
 integrablerouter = APIRouter()
 
@@ -46,7 +47,7 @@ async def delete_asset(id: str, collection: AsyncIOMotorCollection = Depends(get
 @integrablerouter.get(
     "/assets/{id}/view", response_description="GUI for viewing survey"
 )
-async def asset_viewer(id: str, request: Request, collection: AsyncIOMotorCollection = Depends(get_collection)):
+async def asset_viewer(id: str, request: Request, current_user: dict = Depends(get_current_active_user), collection: AsyncIOMotorCollection = Depends(get_collection)):
     survey = await crud.get(collection, id)
     if survey is not None:
         response = templates.TemplateResponse("surveyviewer.html", {
