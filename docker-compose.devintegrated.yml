@@ -2,7 +2,7 @@ version: "3.3"
 services:
 
   survey:
-    image: 'surveydev:${TAG-latest}'
+    image: 'surveydev'
     container_name: survey-integrated
     volumes:
       - ./app:/app
