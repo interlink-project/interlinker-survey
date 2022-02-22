@@ -61,7 +61,7 @@
                     if (window.parent) {
                         window.parent.postMessage({
                             'code': 'asset_updated',
-                            'data': res.data
+                            'message': res.data
                         }, "*");
                     }
                     callback(saveNo, true);
@@ -72,7 +72,7 @@
                     if (window.parent) {
                         window.parent.postMessage({
                             'code': 'asset_created',
-                            'data': res.data
+                            'message': res.data
                         }, "*");
                     }
                     callback(saveNo, true);
