@@ -19,6 +19,8 @@
     <link href="https://unpkg.com/survey-creator-knockout@1.9.6-beta.1/survey-creator-knockout.min.css" type="text/css"
         rel="stylesheet" />
     <meta id="data" data-domain="{{DOMAIN_INFO}}" data-basepath="{{BASE_PATH}}" data-dataFromBackend="{{DATA}}">
+    <script type="text/babel" src="{{BASE_PATH}}/static/generic.js"></script>
+
 </head>
 
 <body>
@@ -28,6 +30,9 @@
     <script type="text/javascript">
         var { domain, basepath, datafrombackend } = jQuery('#data').data();
         const origin = domain.PROTOCOL + domain.SERVER_NAME
+        const inIframe = window.location !== window.parent.location
+        const hasOpener = window.opener && !window.opener.closed
+
         console.log(origin, datafrombackend, basepath)
 
         var http = axios.create({
@@ -58,33 +63,32 @@
                 // Update
                 http.put(`${basepath}/api/v1/assets/${datafrombackend._id}`, creator.text).then(res => {
                     console.log(res.data)
-                    if (window.parent) {
-                        window.parent.postMessage({
-                            'code': 'asset_updated',
-                            'message': res.data
-                        }, "*");
-                    }
                     callback(saveNo, true);
                 }).catch(err => callback(saveNo, false));
             } else {
                 http.post(`${basepath}/api/v1/assets/`, creator.text).then(res => {
                     console.log(res.data)
-                    if (window.parent) {
+
+                    if (inIframe) {
                         window.parent.postMessage({
-                            'code': 'asset_created',
+                            'code': "asset_created",
                             'message': res.data
-                        }, "*");
+                        }, origin);
+                    } else if (hasOpener) {
+                        window.opener.postMessage({
+                            'code': "asset_created",
+                            'message': res.data
+                        }, origin);
+
                     }
                     callback(saveNo, true);
                 }).catch(err => callback(saveNo, false));
             }
         }
 
-        if (window.parent) {
-            window.parent.postMessage({
-                'code': 'initialized',
-            }, "*");
-        }
+
+        sendMessage("initialized")
+
     </script>
 </body>
 
