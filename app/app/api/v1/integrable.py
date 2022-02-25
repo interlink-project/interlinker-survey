@@ -71,7 +71,7 @@ async def asset_editor(id: str, request: Request, collection: AsyncIOMotorCollec
 
 
 @integrablerouter.post(
-    "/assets/{id}/clone", response_description="Asset JSON", response_model=AssetSchema, status_code=201, response_model=AssetBasicDataSchema
+    "/assets/{id}/clone", response_description="Asset JSON", status_code=201, response_model=AssetBasicDataSchema
 )
 async def clone_asset(id: str, collection: AsyncIOMotorCollection = Depends(get_collection)):
     if (survey := await crud.get(collection, id)) is not None:
