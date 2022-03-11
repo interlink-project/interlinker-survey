@@ -22,7 +22,10 @@ class AssetBasicDataSchema(BaseModel):
     icon: str = "https://cdn.pixabay.com/photo/2017/05/15/23/48/survey-2316468_1280.png"
     createdTime: datetime.datetime = Field(alias='created_at')
     modifiedTime: Optional[datetime.datetime] = Field(alias='updated_at')
-   
+
+    # non mandatory
+    description: Optional[str]
+    
     class Config:
         allow_population_by_field_name = True
       
