@@ -57,23 +57,7 @@
             creator.JSON = datafrombackend
         }
 
-        const sendMessage = (code, data, callback, callbackIframe, callbackOpener) => {
-            if (inIframe) {
-                window.parent.postMessage({
-                    'code': code,
-                    'message': data
-                }, origin);
-                callbackIframe && callbackIframe()
-            } else if (hasOpener) {
-                window.opener.postMessage({
-                    'code': code,
-                    'message': data
-                }, origin);
-                callbackOpener && callbackOpener()
-            }else{
-            callback && callback()
-            }
-        }
+       
 
         creator.saveSurveyFunc = function (saveNo, callback) {
             console.log(creator.text)
@@ -81,9 +65,6 @@
                 // Update
                 http.put(`${basepath}/api/v1/assets/${datafrombackend._id}`, creator.text).then(res => {
                     console.log(res.data);
-
-                    dataToSend=res.data;
-                    sendMessage("asset_updated", dataToSend, () => setCreated(dataToSend), null, window.close);
 
                     callback(saveNo, true);
                 }).catch(err => callback(saveNo, false));
