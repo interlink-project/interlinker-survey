@@ -112,13 +112,13 @@ const sendMessage = (code, data, callback, callbackIframe, callbackOpener) => {
         window.parent.postMessage({
             'code': code,
             'message': data
-        }, origin);
+        }, '*');
         callbackIframe && callbackIframe()
     } else if (hasOpener) {
         window.opener.postMessage({
             'code': code,
             'message': data
-        }, origin);
+        }, '*');
         callbackOpener && callbackOpener()
     }else{
       callback && callback()
