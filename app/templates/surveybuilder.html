@@ -57,8 +57,6 @@
             creator.JSON = datafrombackend
         }
 
-   
-
         const sendMessage = (code, data, callback, callbackIframe, callbackOpener) => {
             if (inIframe) {
                 window.parent.postMessage({
@@ -77,7 +75,6 @@
             }
         }
 
-        
         creator.saveSurveyFunc = function (saveNo, callback) {
             console.log(creator.text)
             if (datafrombackend) {
@@ -86,7 +83,7 @@
                     console.log(res.data);
 
                     dataToSend=res.data;
-                    sendMessage("asset_updated", dataToSend, () => setCreated(dataToSend), null, null);
+                    sendMessage("asset_updated", dataToSend, () => setCreated(dataToSend), null, window.close);
 
                     callback(saveNo, true);
                 }).catch(err => callback(saveNo, false));
@@ -98,12 +95,12 @@
                         window.parent.postMessage({
                             'code': "asset_created",
                             'message': res.data
-                        }, origin);
+                        }, '*');
                     } else if (hasOpener) {
                         window.opener.postMessage({
                             'code': "asset_created",
                             'message': res.data
-                        }, origin);
+                        }, '*');
 
                     }
                     callback(saveNo, true);
