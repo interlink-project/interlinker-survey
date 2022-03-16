@@ -13,7 +13,7 @@ from app.api.v1.integrable import integrablerouter
 from app.api.v1.custom import customrouter
 
 app = FastAPI(
-    title="Survey interlinker API", openapi_url=f"/openapi.json", docs_url="/docs", root_path=settings.BASE_PATH
+    title="Survey Editor interlinker API", openapi_url=f"/openapi.json", docs_url="/docs", root_path=settings.BASE_PATH
 )
 app.add_event_handler("startup", connect_to_mongo)
 app.add_event_handler("shutdown", close_mongo_connection)

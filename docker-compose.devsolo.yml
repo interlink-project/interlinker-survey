@@ -2,8 +2,8 @@ version: "3.3"
 services:
 
   survey:
-    image: 'surveydev'
-    container_name: survey-solo
+    image: 'surveyeditordev'
+    container_name: surveyeditor-solo
     volumes:
       - ./app:/app
     env_file:
@@ -23,7 +23,7 @@ services:
 
   mongodb:
     image: bitnami/mongodb:latest
-    container_name: survey-mongodb
+    container_name: surveyeditor-mongodb
     env_file:
       - .env.solo
     healthcheck:

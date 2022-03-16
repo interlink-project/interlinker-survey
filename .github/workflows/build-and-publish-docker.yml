@@ -25,9 +25,9 @@ jobs:
           context: .
           file: Dockerfile
           push: true
-          tags: interlinkproject/interlinker-survey:latest
-          cache-from: type=registry,ref=interlinkproject/interlinker-survey:buildcache
-          cache-to: type=registry,ref=interlinkproject/interlinker-survey:buildcache,mode=max
+          tags: interlinkproject/interlinker-surveyeditor:latest
+          cache-from: type=registry,ref=interlinkproject/interlinker-surveyeditor:buildcache
+          cache-to: type=registry,ref=interlinkproject/interlinker-surveyeditor:buildcache,mode=max
       - name: Trigger Dev Deployment
         uses: octokit/request-action@v2.x
         id: trigger_dev_deployment

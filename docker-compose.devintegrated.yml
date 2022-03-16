@@ -1,9 +1,9 @@
 version: "3.3"
 services:
 
-  survey:
-    image: 'surveydev'
-    container_name: survey-integrated
+  surveyeditor:
+    image: 'surveyeditordev'
+    container_name: surveyeditor-integrated
     volumes:
       - ./app:/app
     env_file:
@@ -12,7 +12,7 @@ services:
       - PROTOCOL=http://
       - SERVER_NAME=${DOMAIN?Variable not set}
       - PORT
-      - BASE_PATH=/survey
+      - BASE_PATH=/surveyeditor
       - MONGODB_URL=mongodb://user:userpass@mongodb:27017/data?retryWrites=true&w=majority
     build:
       context: .
@@ -21,10 +21,10 @@ services:
     labels:
       - traefik.enable=true
       - traefik.docker.network=traefik-public
-      - traefik.http.routers.${STACK_NAME?Variable not set}-survey-http.rule=PathPrefix(`/survey`)
-      - traefik.http.services.${STACK_NAME?Variable not set}-survey.loadbalancer.server.port=${PORT}
-      - traefik.http.routers.${STACK_NAME?Variable not set}-survey-http.middlewares=survey-stripprefix
-      - traefik.http.middlewares.survey-stripprefix.stripprefix.prefixes=/survey
+      - traefik.http.routers.${STACK_NAME?Variable not set}-surveyeditor-http.rule=PathPrefix(`/surveyeditor`)
+      - traefik.http.services.${STACK_NAME?Variable not set}-surveyeditor.loadbalancer.server.port=${PORT}
+      - traefik.http.routers.${STACK_NAME?Variable not set}-surveyeditor-http.middlewares=surveyeditor-stripprefix
+      - traefik.http.middlewares.surveyeditor-stripprefix.stripprefix.prefixes=/surveyeditor
     networks:
       - traefik-public
 

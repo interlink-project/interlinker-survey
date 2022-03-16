@@ -38,8 +38,8 @@ integrated: down ## Starts integrated development containers
 
 .PHONY: tests
 tests: ## Starts test container
-	#docker-compose exec survey pytest --cov=app --cov-report=term-missing app/tests
-	docker-compose -f docker-compose.devsolo.yml --env-file .env.solo exec -T survey pytest app/tests
+	#docker-compose exec surveyeditor pytest --cov=app --cov-report=term-missing app/tests
+	docker-compose -f docker-compose.devsolo.yml --env-file .env.solo exec -T surveyeditor pytest app/tests
 
 .PHONY: testing
 testing: build solo tests down ## Builds containers, runs them, runs test container and deletes all containers
