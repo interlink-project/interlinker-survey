@@ -1,14 +1,14 @@
+import json
 from typing import List
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 
+from app.api.v1.common import domainfo, templates
 from app.authentication import get_current_active_user
+from app.config import settings
 from app.crud import answers as answers_crud
 from app.crud import assets as assets_crud
-from app.database import (
-    AsyncIOMotorCollection,
-    get_collection,
-)
+from app.database import AsyncIOMotorCollection, get_collection
 from app.models.surveys import AssetCreateUpdateSchema, AssetSchema
 
 customrouter = APIRouter()
@@ -37,6 +37,19 @@ async def update_asset(id: str, asset_in: AssetCreateUpdateSchema, collection: A
 )
 async def post_answer(asset_id: str, data: dict, current_user: dict = Depends(get_current_active_user), collection: AsyncIOMotorCollection = Depends(get_collection)):
     return await answers_crud.create(collection=collection, asset_id=asset_id, user_id=current_user["sub"], data=data)
+
+
+@customrouter.get(
+    "/assets/{id}/answer", response_description="GUI for viewing survey"
+)
+async def asset_editor(id: str, request: Request, collection: AsyncIOMotorCollection = Depends(get_collection)):
+    survey = await assets_crud.get(collection, id)
+    if survey is not None:
+        response = templates.TemplateResponse("surveyviewer.html", {
+                                              "request": request, "BASE_PATH": settings.BASE_PATH, "DOMAIN_INFO": json.dumps(domainfo), "DATA": json.dumps(survey, indent=4, sort_keys=True, default=str), "title": survey["title"]})
+        return response
+
+    raise HTTPException(status_code=404, detail=f"Asset {id} not found")
 
 
 @customrouter.get(
