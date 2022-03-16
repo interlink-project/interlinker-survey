@@ -67,9 +67,22 @@ async def clone_asset(id: str, collection: AsyncIOMotorCollection = Depends(get_
     raise HTTPException(status_code=404, detail="Asset {id} not found")
 
 @integrablerouter.get(
-    "/assets/{id}/download", response_description="Asset JSON", status_code=201, response_model=AssetBasicDataSchema
+    "/assets/{id}/preview", response_description="GUI for viewing survey"
 )
-async def download_asset(id: str, collection: AsyncIOMotorCollection = Depends(get_collection)):
+async def asset_editor(id: str, request: Request, collection: AsyncIOMotorCollection = Depends(get_collection)):
     if (survey := await crud.get(collection, id)) is not None:
-        return survey
-    raise HTTPException(status_code=404, detail="Asset {id} not found")
+        return templates.TemplateResponse("surveyviewer.html", {
+                                              "request": request, "BASE_PATH": settings.BASE_PATH, "DOMAIN_INFO": json.dumps(domainfo), "DATA": json.dumps(survey, indent=4, sort_keys=True, default=str), "title": survey["title"]})
+    raise HTTPException(status_code=404, detail=f"Asset {id} not found")
+
+
+@integrablerouter.get(
+    "/assets/{id}/answer", response_description="GUI for viewing survey"
+)
+async def survey_viewer(id: str, request: Request, collection: AsyncIOMotorCollection = Depends(get_collection)):
+    if (survey := await crud.get(collection, id)) is not None:
+        response = templates.TemplateResponse("surveyviewer.html", {
+                                              "request": request, "BASE_PATH": settings.BASE_PATH, "DOMAIN_INFO": json.dumps(domainfo), "DATA": json.dumps(survey, indent=4, sort_keys=True, default=str), "title": survey["title"]})
+        return response
+    raise HTTPException(status_code=404, detail=f"Asset {id} not found")
+

@@ -40,19 +40,6 @@ async def post_answer(asset_id: str, data: dict, current_user: dict = Depends(ge
 
 
 @customrouter.get(
-    "/assets/{id}/answer", response_description="GUI for viewing survey"
-)
-async def asset_editor(id: str, request: Request, collection: AsyncIOMotorCollection = Depends(get_collection)):
-    survey = await assets_crud.get(collection, id)
-    if survey is not None:
-        response = templates.TemplateResponse("surveyviewer.html", {
-                                              "request": request, "BASE_PATH": settings.BASE_PATH, "DOMAIN_INFO": json.dumps(domainfo), "DATA": json.dumps(survey, indent=4, sort_keys=True, default=str), "title": survey["title"]})
-        return response
-
-    raise HTTPException(status_code=404, detail=f"Asset {id} not found")
-
-
-@customrouter.get(
     "/assets/{asset_id}/answers", response_description="List of answers for survey in JSON", response_model=List[dict]
 )
 async def get_answers(asset_id: str, current_user: dict = Depends(get_current_active_user), collection: AsyncIOMotorCollection = Depends(get_collection)):
