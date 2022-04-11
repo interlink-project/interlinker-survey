@@ -27,6 +27,10 @@ services:
       - traefik.http.middlewares.surveyeditor-stripprefix.stripprefix.prefixes=/surveyeditor
     networks:
       - traefik-public
+    logging:
+      driver: "json-file"
+      options:
+        tag: "{{.ImageName}}|{{.Name}}|{{.ImageFullID}}|{{.FullID}}"
 
 networks:
   traefik-public:
