@@ -31,19 +31,20 @@ async def update_asset(id: str, asset_in: AssetCreateUpdateSchema, collection: A
 
     raise HTTPException(status_code=404, detail="Asset {id} not found")
 
+@customrouter.get(
+    "/assets/{id}/answers", response_description="List of answers for survey in JSON", response_model=List
+)
+async def get_answers(id: str, current_user: dict = Depends(get_current_active_user), collection: AsyncIOMotorCollection = Depends(get_collection)):
+    return await answers_crud.get_all(collection=collection, survey_id=id)
+
+
 
 @customrouter.post(
-    "/assets/{asset_id}/answers", response_description="List of answers for survey in JSON", response_model=dict
+    "/assets/{id}/answers", response_description="List of answers for survey in JSON", response_model=dict
 )
-async def post_answer(asset_id: str, data: dict, current_user: dict = Depends(get_current_active_user), collection: AsyncIOMotorCollection = Depends(get_collection)):
-    return await answers_crud.create(collection=collection, asset_id=asset_id, user_id=current_user["sub"], data=data)
+async def post_answer(id: str, data: dict, current_user: dict = Depends(get_current_active_user), collection: AsyncIOMotorCollection = Depends(get_collection)):
+    return await answers_crud.create(collection=collection, asset_id=id, user_id=current_user["sub"], data=data)
 
-
-@customrouter.get(
-    "/assets/{asset_id}/answers", response_description="List of answers for survey in JSON", response_model=List[dict]
-)
-async def get_answers(asset_id: str, current_user: dict = Depends(get_current_active_user), collection: AsyncIOMotorCollection = Depends(get_collection)):
-    return await answers_crud.get_all(collection, asset_id)
 
 
 # @customrouter.get(
