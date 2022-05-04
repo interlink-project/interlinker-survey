@@ -9,6 +9,14 @@ jobs:
   docker:
     runs-on: ubuntu-latest
     steps:
+      - name: Get tag latest
+          id: tag_latest
+          run: echo "::set-output name=tag_latest::$(echo $(echo ${{ github.ref_name }} | sed 's/[^a-z]*//g' | sed 's/^master//g'; echo latest) | tr " " ".")"
+      - name: Log tags
+        id: log_tags
+        run: |
+          echo ${{ steps.tag_latest.outputs.tag_latest }}
+          echo ${{ github.ref_name }}
       - name: Checkout
         uses: actions/checkout@v2
       - name: Set up Docker Buildx
@@ -25,7 +33,9 @@ jobs:
           context: .
           file: Dockerfile
           push: true
-          tags: interlinkproject/interlinker-surveyeditor:latest
+          tags: |
+            interlinkproject/interlinker-surveyeditor:${{ steps.tag_latest.outputs.tag_latest }}
+            interlinkproject/interlinker-surveyeditor:${{ github.ref_name }}
           cache-from: type=registry,ref=interlinkproject/interlinker-surveyeditor:buildcache
           cache-to: type=registry,ref=interlinkproject/interlinker-surveyeditor:buildcache,mode=max
       - name: Trigger Dev Deployment
